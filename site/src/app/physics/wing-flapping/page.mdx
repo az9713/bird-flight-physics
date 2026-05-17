@@ -1,0 +1,447 @@
+# The Physics of Bird Wing Flapping
+
+*Unsteady aerodynamics, vortex dynamics, and aeroelasticity — no biology hand-waving.*
+
+<FlappingWingDemo />
+
+---
+
+## 1. Governing equations: unsteady Navier–Stokes with moving boundaries
+
+Let the air occupy a time-dependent domain $\Omega(t)$, excluding the bird body and wings.
+The flow satisfies incompressible Navier–Stokes:
+
+$$
+\nabla \cdot \mathbf{u} = 0
+$$
+
+$$
+\rho\left(\frac{\partial \mathbf{u}}{\partial t} + \mathbf{u} \cdot \nabla \mathbf{u}\right)
+= -\nabla p + \mu \nabla^2 \mathbf{u}
+$$
+
+with no-slip / no-penetration on the moving wing surface $S_w(t)$:
+
+$$
+\mathbf{u}(\mathbf{x}, t) = \mathbf{V}_w(\mathbf{x}, t), \qquad \mathbf{x} \in S_w(t)
+$$
+
+The aerodynamic force on the bird is the surface integral of the Cauchy stress tensor
+$\boldsymbol{\sigma} = -p\mathbf{I} + \mu(\nabla\mathbf{u} + \nabla\mathbf{u}^T)$:
+
+$$
+\mathbf{F} = \int_{S_w(t)} \boldsymbol{\sigma}\,\mathbf{n}\,dS
+\approx -\int_{S_w(t)} p\,\mathbf{n}\,dS
+$$
+
+The pressure-dominance approximation holds because $Re \gg 1$ for birds.
+
+---
+
+## 2. Relevant nondimensional numbers
+
+Bird flapping is **not** quasi-static. It is dominated by unsteady separated vortex dynamics.
+
+**Reynolds number**
+
+$$
+Re = \frac{\rho U c}{\mu}
+$$
+
+Typical birds: $10^4 \lesssim Re \lesssim 10^6$. Inertia dominates viscosity, but viscosity
+still sets boundary-layer separation and vortex shedding.
+
+**Strouhal number**
+
+$$
+St = \frac{fA}{U}
+$$
+
+Efficient flapping flyers operate in $0.2 \lesssim St \lesssim 0.4$. This range means the wake
+vortex spacing and flapping period are tuned so thrust is generated efficiently.
+
+**Reduced frequency**
+
+$$
+k = \frac{\pi f c}{U}
+$$
+
+For birds, $k = O(0.1\text{–}1)$, so **unsteady effects are essential**. Quasi-steady
+aerodynamics ($k \ll 1$) is inadequate.
+
+---
+
+## 3. Wing kinematics
+
+A simplified wing section at spanwise coordinate $r$ has heaving motion:
+
+$$
+h(r,t) = H(r)\sin(\omega t), \qquad \omega = 2\pi f
+$$
+
+and pitching:
+
+$$
+\alpha(r,t) = \alpha_0(r) + \Theta(r)\sin(\omega t + \phi)
+$$
+
+The local velocity seen by the section:
+
+$$
+U_{\text{eff}}(r,t) = \sqrt{U^2 + \dot{h}(r,t)^2}
+$$
+
+The effective angle of attack — the central quantity in all that follows:
+
+$$
+\alpha_{\text{eff}}(r,t) = \alpha(r,t) - \tan^{-1}\!\left(\frac{\dot{h}(r,t)}{U}\right)
+\approx \alpha - \frac{\dot{h}}{U}
+$$
+
+A flapping wing does not just move up and down; it continuously changes the aerodynamic
+angle of attack as seen by each section.
+
+---
+
+## 4. Quasi-steady lift model
+
+For a thin airfoil at moderate angle of attack, lift per unit span:
+
+$$
+L'(r,t) = \tfrac{1}{2}\rho\, U_{\text{eff}}^2\, c(r)\, C_L(\alpha_{\text{eff}})
+$$
+
+Thin-airfoil theory gives $C_L \approx 2\pi\alpha_{\text{eff}}$, so:
+
+$$
+L'(r,t) \approx \pi\rho\, U_{\text{eff}}^2\, c(r)\, \alpha_{\text{eff}}
+$$
+
+Total lift and level-flight constraint:
+
+$$
+L(t) = \int_0^b L'(r,t)\,dr, \qquad \langle L(t)\rangle = mg
+$$
+
+---
+
+## 5. Thrust comes from tilting the aerodynamic force forward
+
+During the downstroke, $\dot{h} < 0$, so the relative wind tilts downward by angle
+$\gamma = \tan^{-1}(\dot{h}/U)$. The aerodynamic force tilts forward:
+
+$$
+T'(r,t) \approx F'(r,t)\,\frac{\dot{h}}{U}
+$$
+
+More carefully, the streamwise component of the pressure force is:
+
+$$
+T(t) = -\int_{S_w(t)} p\,n_x\,dS + \text{viscous terms}
+$$
+
+Geometrically: **the flapping wing redirects air downward and backward; the bird
+receives lift and forward thrust by Newton's third law.**
+
+---
+
+## 6. Momentum theory: force equals rate of momentum imparted to air
+
+For a control volume enclosing the bird:
+
+$$
+\mathbf{F}_{\text{bird on air}} = \frac{d}{dt}\int_\Omega \rho\,\mathbf{u}\,dV
++ \oint_{\partial\Omega} \rho\,\mathbf{u}(\mathbf{u}\cdot\mathbf{n})\,dS
+$$
+
+In steady level flight, $mg \sim \rho S U w$ where $w$ is the induced downwash velocity.
+Using actuator-disk scaling $w \sim \sqrt{mg/(2\rho S)}$:
+
+$$
+P_i \sim \frac{(mg)^{3/2}}{\sqrt{2\rho S}}
+$$
+
+This is why **large wing area reduces energetic cost**: the same momentum can be imparted
+to more air at lower velocity.
+
+---
+
+## 7. Vorticity formulation: birds fly by sculpting vortex rings
+
+Define vorticity $\boldsymbol{\omega} = \nabla \times \mathbf{u}$. Kelvin's theorem (inviscid):
+
+$$
+\frac{D\Gamma}{Dt} = 0
+$$
+
+Changes in wing-bound circulation $\Gamma(r,t)$ must be balanced by shed vorticity in the
+wake — **that is why flapping flight leaves vortex loops**.
+
+The Kutta–Joukowski theorem gives lift per span: $L' = \rho U\Gamma$.
+
+The vortex impulse formula:
+
+$$
+\mathbf{I} = \frac{\rho}{2}\int \mathbf{x} \times \boldsymbol{\omega}\,dV
+$$
+
+$$
+\mathbf{F} \approx -\frac{d\mathbf{I}}{dt}
+$$
+
+Wing flapping produces force by **changing the impulse of the wake vorticity** — this
+is the deepest single-equation summary of bird flight.
+
+---
+
+## 8. Theodorsen model: unsteady thin-airfoil theory
+
+For a harmonically pitching/heaving airfoil, classical unsteady aerodynamics gives:
+
+$$
+L' = \underbrace{\pi\rho b^2\left(\ddot{h} + U\dot{\alpha} - ba\ddot{\alpha}\right)}_{\text{added mass}}
++ \underbrace{2\pi\rho U b\,C(k)\left[\dot{h}/U + \alpha + b({\textstyle\frac{1}{2}} - a)\dot{\alpha}/U\right]}_{\text{circulatory}}
+$$
+
+where $b = c/2$, $a$ is the pitch-axis parameter, and $C(k)$ is Theodorsen's function:
+
+$$
+C(k) = \frac{H_1^{(2)}(k)}{H_1^{(2)}(k) + i H_0^{(2)}(k)}
+$$
+
+For birds this linear model is incomplete because they use high angles and separated
+leading-edge vortices — but it captures the essential added-mass / circulatory split.
+
+---
+
+## 9. Added mass: accelerating air costs force
+
+A wing does not merely move through air; it accelerates nearby air. For a section with
+chord $c$, added-mass per unit span $m_a' \sim \rho c^2$.
+
+For harmonic flapping $h = H\sin\omega t$:
+
+$$
+\ddot{h} = -\omega^2 H\sin\omega t
+$$
+
+$$
+F_a' \sim \rho c^2 \omega^2 H
+$$
+
+This is why **high-frequency flapping becomes expensive** at small size: $F_a \propto f^2$.
+
+---
+
+## 10. Wingbeat power curve
+
+Mean aerodynamic power:
+
+$$
+\bar{P} = \frac{1}{T}\int_0^T P(t)\,dt, \quad P(t) = \mathbf{F}(t)\cdot\mathbf{V}_{\text{wing}}(t)
+$$
+
+Component scalings:
+
+$$
+P_{\text{induced}} \sim \frac{W^2}{\rho S U}, \qquad
+P_{\text{profile}} \sim \rho S U^3 C_{D,\text{wing}}
+$$
+
+$$
+P_{\text{parasite}} \sim \rho S_b U^3 C_{D,\text{body}}, \qquad
+P_{\text{inertial}} \sim I_w \omega^3 \Phi^2
+$$
+
+This gives the classic **U-shaped flight power curve**:
+
+$$
+P(U) \approx \frac{A}{U} + BU^3 + C
+$$
+
+Low speed is expensive (induced power). High speed is expensive (profile + parasite drag).
+The minimum-power speed $U_{mp}$ is optimal for endurance; $U_{mr}$ (max range) is faster.
+
+---
+
+## 11. Why the downstroke dominates
+
+During the **downstroke**: wing is fully extended ($S_{\text{down}} \approx S_{\max}$),
+$C_L > 0$, and force has upward + forward components.
+
+During the **upstroke**: many birds partially fold or twist the wing ($S_{\text{up}} < S_{\text{down}}$),
+reducing negative lift and drag. Feathers can separate passively, creating slotted flow
+and reducing upstroke drag dramatically.
+
+Cycle-averaged lift constraint:
+
+$$
+\bar{L} \approx \frac{1}{T}\left[\int_{\text{down}} \tfrac{1}{2}\rho U_{\text{eff}}^2 S_{\text{down}} C_L\,dt
++ \int_{\text{up}} \tfrac{1}{2}\rho U_{\text{eff}}^2 S_{\text{up}} C_L\,dt\right] = mg
+$$
+
+---
+
+## 12. Leading-edge vortices
+
+At high angle of attack, attached-flow theory fails. The wing develops a **leading-edge
+vortex (LEV)** — a region of strong spanwise vorticity that creates a low-pressure
+suction peak:
+
+$$
+\Delta p \sim \rho\,\frac{\Gamma_{\text{LEV}}^2}{\ell^2}, \qquad
+L_{\text{LEV}} \sim \rho U\,\Gamma_{\text{LEV}}\,b
+$$
+
+Birds stabilize LEVs via spanwise flow, wing twist, sweep, feather porosity, and
+unsteady shedding. This is why a flapping wing can **exceed the static stall limit**
+of a fixed wing — dynamic stall provides a brief burst of superlift.
+
+---
+
+## 13. Spanwise structure: local velocity increases toward the wingtip
+
+For a wing rotating with angular velocity $\dot\phi$:
+
+$$
+V(r,t) \approx U + \dot\phi(t)\,r
+$$
+
+Dynamic pressure $q(r,t) = \tfrac{1}{2}\rho |\mathbf{V}_{\text{rel}}|^2$ grows with $r$,
+so most aerodynamic force comes from the **outer wing**.
+
+Torque about the shoulder:
+
+$$
+\tau(t) = \int_0^b r\,dF(r,t) \sim \int_0^b r\,\tfrac{1}{2}\rho V(r)^2 c(r) C_L\,dr
+$$
+
+Bird wings balance aerodynamic leverage against muscular and inertial cost.
+
+---
+
+## 14. Wing twist: solving the spanwise angle-of-attack problem
+
+Because $V(r,t)$ varies with $r$, the required geometric twist to maintain $\alpha_{\text{eff}}$
+near the optimal $\alpha^*$ is:
+
+$$
+\theta(r,t) \approx \alpha^* + \tan^{-1}\!\left(\frac{V_z(r,t)}{V_x(r,t)}\right)
+$$
+
+Real bird wings are **actively and passively deforming aeroelastic structures** that
+achieve this twist through muscle actuation and feather compliance.
+
+---
+
+## 15. Aeroelasticity: the wing as a fluid–structure interaction system
+
+Let the wing displacement be $\mathbf{y}(s,t)$. A simplified elastic bending model:
+
+$$
+\rho_s A\,\frac{\partial^2 \mathbf{y}}{\partial t^2} + EI\,\frac{\partial^4 y}{\partial s^4}
+= f_{\text{aero}} + f_{\text{muscle}}
+$$
+
+The key dimensionless number — Cauchy number:
+
+$$
+Ca = \frac{\rho U^2 L^3}{EI}
+$$
+
+- Large $Ca$: aerodynamic loading strongly deforms the wing (feathers, membrane bats)
+- Small $Ca$: wing behaves rigidly (large soaring birds)
+
+Bird wings exploit **controlled compliance** — neither purely rigid nor passively floppy.
+
+---
+
+## 16. Wake topology
+
+In slow flight the wake is a chain of **discrete vortex rings**. Each ring carries
+downward momentum:
+
+$$
+I \sim \rho\,\Gamma\,\pi R^2
+$$
+
+If rings are shed at frequency $f$, the mean force scales as:
+
+$$
+\bar{F} \sim f\,I \sim \rho f\,\Gamma R^2, \qquad mg \sim \rho f\,\Gamma R^2
+$$
+
+For thrust, the rings are tilted so their impulse has a rearward component. In fast flight
+the wake transitions to a continuous **reverse Kármán street** (ladder wake).
+
+---
+
+## 17. Minimal mathematical model
+
+A usable reduced-order model (what the interactive demo above solves in real-time):
+
+$$
+h(t) = H\sin\omega t
+$$
+
+$$
+\alpha(t) = \alpha_0 + \Theta\sin(\omega t + \phi)
+$$
+
+$$
+U_{\text{eff}}(t) = \sqrt{U^2 + \dot{h}^2}
+$$
+
+$$
+\alpha_{\text{eff}}(t) = \alpha(t) - \tan^{-1}\!\left(\frac{\dot{h}}{U}\right)
+$$
+
+$$
+L(t) = \tfrac{1}{2}\rho S\,U_{\text{eff}}^2\,C_L(\alpha_{\text{eff}})
+$$
+
+$$
+D(t) = \tfrac{1}{2}\rho S\,U_{\text{eff}}^2\,C_D(\alpha_{\text{eff}})
+$$
+
+Resolve into vertical/horizontal with $\gamma = \tan^{-1}(\dot{h}/U)$:
+
+$$
+F_z = L\cos\gamma - D\sin\gamma, \qquad F_x = L\sin\gamma - D\cos\gamma
+$$
+
+Cycle constraints: $\langle F_z\rangle = mg$, $\langle F_x\rangle = D_{\text{body}}$.
+
+The chain:
+
+$$
+\boxed{\text{kinematics} \;\to\; \alpha_{\text{eff}} \;\to\; \Gamma(t) \;\to\; \text{vortex wake} \;\to\; \text{lift / thrust / power}}
+$$
+
+---
+
+## 18. The deepest physical picture
+
+Bird flight is **not** "wings push air down" in a simple static sense.
+
+$$
+\boxed{
+\mathbf{F} \approx -\frac{d}{dt}\!\left[\frac{\rho}{2}\int \mathbf{x}\times\boldsymbol{\omega}\,dV\right]
+}
+$$
+
+Birds fly by **imposing time-dependent circulation on a deforming finite wing**, thereby
+shedding a structured vortex wake whose impulse equals the aerodynamic force.
+
+The design problem solved by evolution is:
+
+$$
+\min_{\text{wing shape, kinematics, muscles}} \bar{P}
+\quad \text{subject to} \quad
+\langle F_z\rangle = mg, \quad \langle F_x\rangle = D, \quad \alpha_{\text{eff}}(r,t) < \alpha_{\text{stall}},
+\quad \text{structural constraints}
+$$
+
+That is the rigorous physics: unsteady viscous incompressible flow, deforming-boundary
+circulation control, and wake impulse dynamics — solved approximately by every bird on
+every wingbeat.
