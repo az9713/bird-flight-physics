@@ -2,6 +2,12 @@
 
 Rigorous unsteady aerodynamics of bird wing flapping — full mathematical derivation with an interactive 3D simulation.
 
+![The physics in a nutshell](nutshell.jpg)
+*The entire physics chain distilled: from wing kinematics through vortex wake impulse to lift and thrust.*
+
+> **Demo video:** [▶ Watch simulation](YOUR_VIDEO_URL_HERE)
+
+
 ---
 
 ## Running the simulations
