@@ -2,7 +2,23 @@
 
 Rigorous unsteady aerodynamics of bird wing flapping — full mathematical derivation with an interactive 3D simulation.
 
-**Live site:** `npm run dev` → [http://localhost:3000](http://localhost:3000)
+---
+
+## Running the simulations
+
+**Option 1 — Standalone (no install needed)**
+
+Open `wing_flapping_physics.html` directly in Chrome. It contains the full theoretical treatment of bird wing flapping aerodynamics — governing equations, nondimensional analysis, vortex dynamics, Theodorsen model, aeroelasticity — alongside an interactive 3D simulation with parameter sliders and a live physics readout. No build step required.
+
+**Option 2 — Full Next.js site**
+
+```bash
+cd site
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Navigate to **Wing Flapping** for the complete 18-section mathematical derivation with embedded interactive 3D demo, all equations typeset in KaTeX.
 
 ---
 
@@ -10,9 +26,8 @@ Rigorous unsteady aerodynamics of bird wing flapping — full mathematical deriv
 
 | Path | Description |
 |---|---|
-| `site/` | Next.js 16 education site |
-| `preview.html` | Standalone Three.js demo (no build needed) |
-| `gpt5.5_tutorial.txt` | Original ChatGPT conversation transcript |
+| `site/` | Next.js 16 education site with full derivation + embedded 3D demo |
+| `wing_flapping_physics.html` | Standalone HTML — complete theory, math, and 3D simulation (no install needed) |
 | `.claude/skills/sci-math-site/` | Reusable Claude Code skill for this stack |
 
 ---
@@ -51,21 +66,6 @@ Rigorous unsteady aerodynamics of bird wing flapping — full mathematical deriv
 - Live force arrows (lift, thrust, drag)
 - 5 parameter sliders: frequency, amplitude, speed, twist, wake strength
 - Real-time readout: St, Re, α_eff, U_eff, C_L, C_D, L, T, D
-
-### Run locally
-
-```bash
-cd site
-npm install
-npm run dev
-```
-
-### Build
-
-```bash
-cd site
-npm run build   # static output in .next/
-```
 
 ---
 
