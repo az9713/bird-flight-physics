@@ -1,462 +1,948 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Bird Flapping Flight Physics — Preview Safe</title>
-
-<style>
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #05070a;
-  color: #e6eef8;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-#container {
-  width: 100vw;
-  height: 100vh;
-}
-
-#ui {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 430px;
-  max-width: calc(100vw - 24px);
-  background: rgba(0,0,0,0.78);
-  border: 1px solid rgba(255,255,255,0.16);
-  padding: 14px;
-  border-radius: 12px;
-  z-index: 10;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-}
-
-h2 {
-  margin: 0 0 8px 0;
-  font-size: 18px;
-}
-
-.small {
-  font-size: 12px;
-  opacity: 0.82;
-  line-height: 1.35;
-  margin-bottom: 10px;
-}
-
-.slider-row {
-  margin: 9px 0;
-}
-
-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 3px;
-}
-
-input[type=range] {
-  width: 100%;
-}
-
-#readout {
-  margin-top: 10px;
-  font-size: 12px;
-  line-height: 1.45;
-  background: rgba(255,255,255,0.06);
-  padding: 8px;
-  border-radius: 8px;
-}
-
-#equations {
-  margin-top: 10px;
-  max-height: 280px;
-  overflow-y: auto;
-  font-size: 12px;
-  line-height: 1.4;
-  background: rgba(255,255,255,0.045);
-  padding: 8px;
-  border-radius: 8px;
-}
-
-.eq {
-  font-family: "Times New Roman", serif;
-  font-size: 15px;
-  margin: 5px 0;
-}
-
-#status {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  color: #dce8ff;
-  background: rgba(0,0,0,0.65);
-  padding: 8px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  z-index: 10;
-}
-
-#error {
-  position: absolute;
-  inset: 20px;
-  display: none;
-  background: rgba(30,0,0,0.9);
-  color: #fff;
-  padding: 20px;
-  border: 1px solid #ff8888;
-  border-radius: 10px;
-  z-index: 99;
-  white-space: pre-wrap;
-}
-</style>
-
-<!-- Preview-safe classic scripts. No ES-module bare imports. -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-</head>
-
-<body>
-<div id="container"></div>
-
-<div id="ui">
-  <h2>3D Flapping Wing Aerodynamics</h2>
-  <div class="small">
-    Reduced-order unsteady aerodynamics: deforming wing kinematics, effective angle of attack,
-    force vectors, Strouhal scaling, added-mass scaling, and vortex-wake impulse visualization.
-  </div>
-
-  <div class="slider-row">
-    <label><span>Frequency f</span><span id="freqVal">1.50 Hz</span></label>
-    <input id="freq" type="range" min="0.20" max="6.00" step="0.05" value="1.50">
-  </div>
-
-  <div class="slider-row">
-    <label><span>Stroke amplitude A</span><span id="ampVal">1.00 m</span></label>
-    <input id="amp" type="range" min="0.20" max="3.00" step="0.05" value="1.00">
-  </div>
-
-  <div class="slider-row">
-    <label><span>Forward speed U</span><span id="velVal">6.00 m/s</span></label>
-    <input id="vel" type="range" min="1.00" max="20.00" step="0.25" value="6.00">
-  </div>
-
-  <div class="slider-row">
-    <label><span>Spanwise twist θ</span><span id="twistVal">0.40 rad</span></label>
-    <input id="twist" type="range" min="0.00" max="1.20" step="0.02" value="0.40">
-  </div>
-
-  <div class="slider-row">
-    <label><span>Wake strength</span><span id="wakeVal">1.00</span></label>
-    <input id="wake" type="range" min="0.20" max="2.50" step="0.05" value="1.00">
-  </div>
-
-  <div id="readout"></div>
-
-  <div id="equations">
-    <b>Model skeleton</b>
-    <div class="eq">α<sub>eff</sub>(r,t) = θ(r,t) − tan<sup>−1</sup>(V<sub>z</sub>/V<sub>x</sub>)</div>
-    <div class="eq">L′(r,t) = ½ρ U<sub>eff</sub><sup>2</sup> c(r) C<sub>L</sub>(α<sub>eff</sub>)</div>
-    <div class="eq">L′ = ρ U Γ</div>
-    <div class="eq">F′<sub>a</sub> ∼ ρ c² ḧ</div>
-    <div class="eq">St = fA/U</div>
-    <div class="eq">F ≈ −dI/dt, &nbsp; I = (ρ/2)∫x×ω dV</div>
-  </div>
-</div>
-
-<div id="status">Initializing...</div>
-<div id="error"></div>
-
-<script>
-(function () {
-  const errorBox = document.getElementById("error");
-  function fail(msg) {
-    errorBox.style.display = "block";
-    errorBox.textContent = msg;
-    document.getElementById("status").textContent = "Failed";
-  }
-
-  try {
-    if (!window.THREE) {
-      fail("Three.js did not load. The preview environment may be blocking external CDN scripts. Open the HTML file in Chrome or serve it with: python -m http.server 8000");
-      return;
-    }
-
-    const container = document.getElementById("container");
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x05070a);
-
-    const camera = new THREE.PerspectiveCamera(
-      60,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    camera.position.set(0, 4.5, 13);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
-
-    let controls = null;
-    if (THREE.OrbitControls) {
-      controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.08;
-    }
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-
-    const d1 = new THREE.DirectionalLight(0xffffff, 1.2);
-    d1.position.set(5, 8, 7);
-    scene.add(d1);
-
-    const d2 = new THREE.DirectionalLight(0x88bbff, 0.55);
-    d2.position.set(-6, 2, -8);
-    scene.add(d2);
-
-    scene.add(new THREE.GridHelper(60, 60, 0x2c3440, 0x161b22));
-
-    const bird = new THREE.Group();
-    scene.add(bird);
-
-    const body = new THREE.Mesh(
-      new THREE.SphereGeometry(0.42, 32, 32),
-      new THREE.MeshStandardMaterial({ color: 0xffaa44, roughness: 0.55, metalness: 0.05 })
-    );
-    body.scale.set(1.4, 0.8, 0.75);
-    bird.add(body);
-
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 24, 24),
-      new THREE.MeshStandardMaterial({ color: 0xffc777, roughness: 0.5 })
-    );
-    head.position.set(0, 0.18, 0.62);
-    bird.add(head);
-
-    const wingMat = new THREE.MeshStandardMaterial({
-      color: 0x66aaff,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.88,
-      roughness: 0.38,
-      metalness: 0.02
-    });
-
-    function makeWing(side) {
-      const chord = 1.45;
-      const span = 5.4;
-      const nx = 38;
-      const ny = 12;
-
-      const geo = new THREE.PlaneGeometry(span, chord, nx, ny);
-      const pos = geo.attributes.position;
-
-      for (let i = 0; i < pos.count; i++) {
-        const x = pos.getX(i);
-        const y = pos.getY(i);
-
-        const eta = Math.abs(x) / (span / 2);
-        const taper = Math.max(0.15, 1.0 - 0.55 * eta);
-        const camber = 0.12 * Math.sin(Math.PI * (y / chord + 0.5)) * taper;
-        const sweep = 0.18 * side * eta * eta;
-
-        pos.setY(i, y * taper + sweep);
-        pos.setZ(i, camber);
-      }
-
-      geo.computeVertexNormals();
-
-      const wing = new THREE.Mesh(geo, wingMat);
-      wing.rotation.y = Math.PI / 2;
-      wing.position.x = side * 2.75;
-      wing.userData.side = side;
-
-      return wing;
-    }
-
-    const leftWing = makeWing(-1);
-    const rightWing = makeWing(1);
-    bird.add(leftWing);
-    bird.add(rightWing);
-
-    function arrow(color, origin) {
-      const a = new THREE.ArrowHelper(
-        new THREE.Vector3(0, 1, 0),
-        origin || new THREE.Vector3(0, 0, 0),
-        1.5,
-        color,
-        0.35,
-        0.22
-      );
-      scene.add(a);
-      return a;
-    }
-
-    const liftArrow = arrow(0x00ff77, new THREE.Vector3(0, 0.2, 0));
-    const thrustArrow = arrow(0xff4444, new THREE.Vector3(0, -0.25, 0));
-    const dragArrow = arrow(0xffdd44, new THREE.Vector3(0, -0.55, 0));
-
-    const wakeGroup = new THREE.Group();
-    scene.add(wakeGroup);
-
-    const vortexParticles = [];
-    const particleGeo = new THREE.SphereGeometry(0.055, 8, 8);
-
-    for (let i = 0; i < 320; i++) {
-      const p = new THREE.Mesh(
-        particleGeo,
-        new THREE.MeshBasicMaterial({
-          color: i % 2 ? 0x44ccff : 0xaaddff,
-          transparent: true,
-          opacity: 0.74
-        })
-      );
-
-      p.userData.phase = Math.random() * Math.PI * 2;
-      p.userData.radius = 0.5 + Math.random() * 2.0;
-      p.userData.side = Math.random() < 0.5 ? -1 : 1;
-      p.position.set(
-        p.userData.side * (1 + Math.random() * 2.5),
-        (Math.random() - 0.5) * 1.5,
-        -Math.random() * 44
-      );
-
-      wakeGroup.add(p);
-      vortexParticles.push(p);
-    }
-
-    const sliders = {
-      freq: document.getElementById("freq"),
-      amp: document.getElementById("amp"),
-      vel: document.getElementById("vel"),
-      twist: document.getElementById("twist"),
-      wake: document.getElementById("wake")
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physics of Bird Wing Flapping</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
     };
-
-    function updateLabels() {
-      document.getElementById("freqVal").textContent = Number(sliders.freq.value).toFixed(2) + " Hz";
-      document.getElementById("ampVal").textContent = Number(sliders.amp.value).toFixed(2) + " m";
-      document.getElementById("velVal").textContent = Number(sliders.vel.value).toFixed(2) + " m/s";
-      document.getElementById("twistVal").textContent = Number(sliders.twist.value).toFixed(2) + " rad";
-      document.getElementById("wakeVal").textContent = Number(sliders.wake.value).toFixed(2);
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --paper: #ffffff;
+      --ink: #1f2933;
+      --muted: #5f6b7a;
+      --line: #e5e7eb;
+      --accent: #243b53;
+      --accent-soft: #eef2f7;
+      --code-bg: #f3f4f6;
     }
 
-    Object.values(sliders).forEach(s => s.addEventListener("input", updateLabels));
-    updateLabels();
-
-    const clock = new THREE.Clock();
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      const t = clock.getElapsedTime();
-
-      const f = parseFloat(sliders.freq.value);
-      const A = parseFloat(sliders.amp.value);
-      const U = parseFloat(sliders.vel.value);
-      const twist = parseFloat(sliders.twist.value);
-      const wakeStrength = parseFloat(sliders.wake.value);
-
-      const omega = 2 * Math.PI * f;
-      const flap = Math.sin(omega * t);
-      const flapDot = A * omega * Math.cos(omega * t);
-      const flapDDot = -A * omega * omega * Math.sin(omega * t);
-
-      const alphaEff = twist - Math.atan2(flapDot, U);
-      const Ueff = Math.sqrt(U * U + flapDot * flapDot);
-
-      const rho = 1.225;
-      const S = 7.5;
-      const c = 0.75;
-
-      const CL = 2 * Math.PI * alphaEff;
-      const CD = 0.025 + 0.08 * alphaEff * alphaEff;
-
-      const lift = 0.5 * rho * Ueff * Ueff * S * CL;
-      const profileDrag = 0.5 * rho * Ueff * Ueff * S * CD;
-      const addedMass = rho * c * c * flapDDot * S;
-
-      const gamma = Math.atan2(flapDot, U);
-      const thrust = Math.max(0, lift * Math.sin(gamma) - profileDrag * Math.cos(gamma));
-      const drag = Math.abs(profileDrag);
-
-      const strokeAngle = 0.62 * A * flap;
-      const pitchAngle = twist * Math.cos(omega * t);
-
-      leftWing.rotation.z = strokeAngle;
-      rightWing.rotation.z = -strokeAngle;
-
-      leftWing.rotation.x = pitchAngle;
-      rightWing.rotation.x = -pitchAngle;
-
-      bird.position.y = 0.08 * Math.sin(omega * t + Math.PI / 5);
-
-      liftArrow.setDirection(new THREE.Vector3(0, Math.sign(lift || 1), 0));
-      liftArrow.setLength(Math.max(0.3, Math.min(5.5, Math.abs(lift) * 0.008)));
-
-      thrustArrow.setDirection(new THREE.Vector3(1, 0, 0));
-      thrustArrow.setLength(Math.max(0.25, Math.min(4.5, thrust * 0.018)));
-
-      dragArrow.setDirection(new THREE.Vector3(-1, 0, 0));
-      dragArrow.setLength(Math.max(0.25, Math.min(4.5, drag * 0.018)));
-
-      const St = f * A / U;
-      const ReScaled = U * c / 1.5e-5;
-
-      document.getElementById("readout").innerHTML =
-        "<b>Live nondimensional / force readout</b><br>" +
-        "St = " + St.toFixed(3) + " &nbsp; | &nbsp; Re ≈ " + ReScaled.toExponential(2) + "<br>" +
-        "α<sub>eff</sub> = " + alphaEff.toFixed(3) + " rad &nbsp; | &nbsp; U<sub>eff</sub> = " + Ueff.toFixed(2) + " m/s<br>" +
-        "C<sub>L</sub> = " + CL.toFixed(2) + " &nbsp; | &nbsp; C<sub>D</sub> = " + CD.toFixed(3) + "<br>" +
-        "L ≈ " + lift.toFixed(1) + " N &nbsp; | &nbsp; T ≈ " + thrust.toFixed(1) + " N &nbsp; | &nbsp; D ≈ " + drag.toFixed(1) + " N<br>" +
-        "Added-mass scale ∝ " + addedMass.toFixed(1);
-
-      vortexParticles.forEach((p, i) => {
-        p.position.z += 0.055 * U;
-
-        const zLag = -p.position.z;
-        const ringPhase = 0.65 * zLag + omega * t + p.userData.phase;
-        const ringRadius = p.userData.radius * wakeStrength;
-
-        p.position.x =
-          p.userData.side * (1.2 + ringRadius * Math.cos(ringPhase));
-
-        p.position.y =
-          -0.035 * zLag
-          + ringRadius * 0.38 * Math.sin(ringPhase)
-          - 0.55 * wakeStrength * Math.sin(omega * t - 0.13 * zLag);
-
-        if (p.position.z > 8) {
-          p.position.z = -44 - Math.random() * 4;
-          p.userData.phase = Math.random() * Math.PI * 2;
-          p.userData.side = Math.random() < 0.5 ? -1 : 1;
-          p.userData.radius = 0.5 + Math.random() * 2.0;
-        }
-      });
-
-      if (controls) controls.update();
-      renderer.render(scene, camera);
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
     }
 
-    animate();
-    document.getElementById("status").textContent = "Running: drag to orbit, scroll to zoom";
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 24px 96px;
+    }
 
-    window.addEventListener("resize", function () {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    article {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 48px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
 
-  } catch (err) {
-    fail("Runtime error:\n\n" + (err && err.stack ? err.stack : String(err)));
-  }
-})();
-</script>
+    h1, h2, h3 {
+      line-height: 1.2;
+      color: var(--accent);
+      margin-top: 2.2em;
+      margin-bottom: 0.7em;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 2.3rem;
+      letter-spacing: -0.035em;
+    }
+
+    h2 {
+      font-size: 1.55rem;
+      padding-top: 0.25rem;
+      border-top: 1px solid var(--line);
+    }
+
+    h3 {
+      font-size: 1.18rem;
+    }
+
+    p {
+      margin: 0.9em 0;
+    }
+
+    .subtitle {
+      font-size: 1.12rem;
+      color: var(--muted);
+      margin-top: -0.4rem;
+      margin-bottom: 2rem;
+    }
+
+    .box {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      margin: 1.25rem 0;
+    }
+
+    .symbols {
+      background: #fbfbfc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0 1.4rem;
+    }
+
+    .symbols p {
+      margin: 0.35rem 0;
+    }
+
+    .flow {
+      text-align: center;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--code-bg);
+      border-radius: 999px;
+      padding: 0.75rem 1rem;
+      margin: 1.5rem 0 2rem;
+      overflow-x: auto;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    mjx-container[jax="SVG"] {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding: 0.2rem 0;
+    }
+
+    @media (max-width: 720px) {
+      main { padding: 20px 12px 64px; }
+      article { padding: 26px 18px; border-radius: 12px; }
+      h1 { font-size: 1.75rem; }
+      h2 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+<main>
+<article>
+  <h1>Physics of Bird Wing Flapping</h1>
+  <p class="subtitle">A coherent mathematical derivation with all symbols defined before use.</p>
+
+  <div class="flow">
+    wing motion $\rightarrow$ relative airflow $\rightarrow$ pressure/circulation $\rightarrow$ force $\rightarrow$ wake momentum/vorticity $\rightarrow$ power cost
+  </div>
+
+  <h2>0. The central problem</h2>
+  <p>A bird in steady level flight must support its weight and generate thrust to overcome drag.</p>
+
+  <div class="symbols">
+    <p>$m$ = bird mass.</p>
+    <p>$g$ = gravitational acceleration.</p>
+    <p>$W = mg$ = bird weight.</p>
+    <p>$U$ = forward flight speed relative to still air.</p>
+    <p>$D$ = total aerodynamic drag on the bird.</p>
+    <p>$T$ = wingbeat period.</p>
+    <p>$F_z(t)$ = instantaneous vertical aerodynamic force.</p>
+    <p>$F_x(t)$ = instantaneous forward aerodynamic force.</p>
+  </div>
+
+  <p>The average of any time-dependent quantity $F(t)$ over one wingbeat cycle is</p>
+  $$
+  \langle F\rangle = \frac{1}{T}\int_0^T F(t)\,dt.
+  $$
+
+  <p>For steady level flight, the cycle-averaged force balances are</p>
+  $$
+  \langle F_z\rangle = W = mg,
+  $$
+  $$
+  \langle F_x\rangle = D.
+  $$
+
+  <div class="box">
+    The wingbeat must create enough vertical force to balance weight and enough forward force to overcome drag.
+  </div>
+
+  <h2>1. The fluid-mechanical problem</h2>
+  <p>The air is modeled as an incompressible viscous fluid.</p>
+
+  <div class="symbols">
+    <p>$\mathbf{x} = (x,y,z)$ = position vector in space.</p>
+    <p>$x$ = forward direction.</p>
+    <p>$y$ = spanwise direction.</p>
+    <p>$z$ = upward direction.</p>
+    <p>$t$ = time.</p>
+    <p>$\mathbf{u}(\mathbf{x},t)$ = air velocity field.</p>
+    <p>$p(\mathbf{x},t)$ = pressure field.</p>
+    <p>$\rho$ = air density.</p>
+    <p>$\mu$ = dynamic viscosity of air.</p>
+    <p>$\nu = \mu/\rho$ = kinematic viscosity of air.</p>
+  </div>
+
+  <p>The governing equations are the incompressible Navier–Stokes equations:</p>
+  $$
+  \nabla\cdot \mathbf{u}=0,
+  $$
+  $$
+  \rho\left(\frac{\partial \mathbf{u}}{\partial t}+\mathbf{u}\cdot\nabla \mathbf{u}\right)
+  = -\nabla p + \mu \nabla^2\mathbf{u}.
+  $$
+
+  <p>The first equation enforces incompressibility. The second equation is Newton's second law applied to a moving fluid element.</p>
+
+  <div class="symbols">
+    <p>$S_w(t)$ = instantaneous moving wing surface.</p>
+    <p>$\mathbf{V}_w(\mathbf{x},t)$ = velocity of a point on the wing surface.</p>
+  </div>
+
+  <p>The no-slip boundary condition on the moving wing is</p>
+  $$
+  \mathbf{u}(\mathbf{x},t)=\mathbf{V}_w(\mathbf{x},t),
+  \qquad \mathbf{x}\in S_w(t).
+  $$
+
+  <p>The wing therefore imposes motion on the surrounding air.</p>
+
+  <h2>2. Force from pressure and shear</h2>
+
+  <div class="symbols">
+    <p>$\mathbf{n}$ = unit normal vector pointing from the wing into the air.</p>
+    <p>$\boldsymbol{\sigma}$ = fluid stress tensor.</p>
+    <p>$\mathbf{I}$ = identity tensor.</p>
+  </div>
+
+  <p>For a Newtonian fluid,</p>
+  $$
+  \boldsymbol{\sigma}
+  = -p\mathbf{I}
+  + \mu\left(\nabla\mathbf{u}+\nabla\mathbf{u}^{T}\right).
+  $$
+
+  <p>The aerodynamic force on the wing is</p>
+  $$
+  \mathbf{F}(t)
+  = \int_{S_w(t)}\boldsymbol{\sigma}\mathbf{n}\,dS.
+  $$
+
+  <p>Substituting the stress tensor gives</p>
+  $$
+  \mathbf{F}(t)
+  = \int_{S_w(t)}
+  \left[-p\mathbf{I}+\mu\left(\nabla\mathbf{u}+\nabla\mathbf{u}^{T}\right)\right]
+  \mathbf{n}\,dS.
+  $$
+
+  <p>The pressure contribution is</p>
+  $$
+  \mathbf{F}_p(t)=-\int_{S_w(t)}p\mathbf{n}\,dS.
+  $$
+
+  <p>The viscous shear contribution is</p>
+  $$
+  \mathbf{F}_{\mu}(t)
+  = \int_{S_w(t)}
+  \mu\left(\nabla\mathbf{u}+\nabla\mathbf{u}^{T}\right)\mathbf{n}\,dS.
+  $$
+
+  <p>For bird-sized flight, pressure forces usually dominate, so</p>
+  $$
+  \mathbf{F}(t)\approx \mathbf{F}_p(t).
+  $$
+
+  <div class="box">
+    At leading order, bird flight is pressure engineering produced by time-dependent wing motion.
+  </div>
+
+  <h2>3. Wing geometry and kinematics</h2>
+
+  <div class="symbols">
+    <p>$b$ = span of one wing, measured from shoulder to wingtip.</p>
+    <p>$r$ = spanwise coordinate, with $0\le r\le b$.</p>
+    <p>$c(r)$ = local chord length at spanwise position $r$.</p>
+    <p>$S$ = total area of both wings.</p>
+  </div>
+
+  <p>The wing area is approximately</p>
+  $$
+  S\approx 2\int_0^b c(r)\,dr.
+  $$
+
+  <div class="symbols">
+    <p>$h(r,t)$ = vertical displacement of the wing section at span $r$.</p>
+    <p>$\theta(r,t)$ = local pitch angle of that wing section.</p>
+    <p>$H(r)$ = vertical flapping amplitude at span $r$.</p>
+    <p>$f$ = flapping frequency.</p>
+    <p>$\omega = 2\pi f$ = angular flapping frequency.</p>
+  </div>
+
+  <p>A simple periodic vertical flapping model is</p>
+  $$
+  h(r,t)=H(r)\sin(\omega t).
+  $$
+
+  <p>The vertical velocity is</p>
+  $$
+  \dot h(r,t)=\frac{\partial h}{\partial t}=\omega H(r)\cos(\omega t).
+  $$
+
+  <p>The vertical acceleration is</p>
+  $$
+  \ddot h(r,t)=\frac{\partial^2 h}{\partial t^2}=-\omega^2H(r)\sin(\omega t).
+  $$
+
+  <div class="symbols">
+    <p>$\theta_0(r)$ = mean pitch angle.</p>
+    <p>$\Theta(r)$ = pitch oscillation amplitude.</p>
+    <p>$\phi$ = phase offset between vertical flapping and pitching.</p>
+  </div>
+
+  <p>A simple periodic pitch model is</p>
+  $$
+  \theta(r,t)=\theta_0(r)+\Theta(r)\sin(\omega t+\phi).
+  $$
+
+  <p>The phase $\phi$ is dynamically important because it controls whether high lift occurs when the force is tilted in a thrust-producing direction.</p>
+
+  <h2>4. Relative airflow and effective angle of attack</h2>
+
+  <div class="symbols">
+    <p>$\mathbf{V}_{\mathrm{rel}}(r,t)$ = local airflow velocity relative to the moving wing section.</p>
+    <p>$U_{\mathrm{eff}}(r,t)$ = magnitude of the relative airflow.</p>
+    <p>$\gamma(r,t)$ = inflow angle caused by vertical flapping motion.</p>
+    <p>$\alpha_{\mathrm{eff}}(r,t)$ = effective angle of attack.</p>
+  </div>
+
+  <p>In a two-dimensional approximation, the wing section sees a forward component $U$ and a vertical component $\dot h(r,t)$. Hence</p>
+  $$
+  U_{\mathrm{eff}}(r,t)=\sqrt{U^2+\dot h(r,t)^2}.
+  $$
+
+  <p>The relative wind is tilted by</p>
+  $$
+  \gamma(r,t)=\tan^{-1}\left(\frac{\dot h(r,t)}{U}\right).
+  $$
+
+  <p>The effective angle of attack is therefore</p>
+  $$
+  \alpha_{\mathrm{eff}}(r,t)=\theta(r,t)-\gamma(r,t),
+  $$
+  or explicitly,
+  $$
+  \alpha_{\mathrm{eff}}(r,t)
+  =\theta(r,t)-\tan^{-1}\left(\frac{\dot h(r,t)}{U}\right).
+  $$
+
+  <p>For small $\dot h/U$,</p>
+  $$
+  \tan^{-1}\left(\frac{\dot h}{U}\right)\approx \frac{\dot h}{U},
+  $$
+  so
+  $$
+  \alpha_{\mathrm{eff}}(r,t)\approx \theta(r,t)-\frac{\dot h(r,t)}{U}.
+  $$
+
+  <div class="box">
+    Flapping does not merely move the wing up and down. It changes the effective angle of attack, and therefore changes circulation, pressure, lift, drag, and thrust.
+  </div>
+
+  <h2>5. Local lift and drag on a wing section</h2>
+
+  <div class="symbols">
+    <p>$L'(r,t)$ = lift force per unit span at position $r$.</p>
+    <p>$D'(r,t)$ = drag force per unit span at position $r$.</p>
+    <p>$C_L(\alpha_{\mathrm{eff}})$ = lift coefficient.</p>
+    <p>$C_D(\alpha_{\mathrm{eff}})$ = drag coefficient.</p>
+  </div>
+
+  <p>A quasi-steady sectional model gives</p>
+  $$
+  L'(r,t)=\frac12\rho U_{\mathrm{eff}}(r,t)^2 c(r) C_L\!\left(\alpha_{\mathrm{eff}}(r,t)\right),
+  $$
+  $$
+  D'(r,t)=\frac12\rho U_{\mathrm{eff}}(r,t)^2 c(r) C_D\!\left(\alpha_{\mathrm{eff}}(r,t)\right).
+  $$
+
+  <p>For small angles and attached flow, thin-airfoil theory gives</p>
+  $$
+  C_L(\alpha_{\mathrm{eff}})\approx 2\pi\alpha_{\mathrm{eff}},
+  $$
+  where $\alpha_{\mathrm{eff}}$ is measured in radians.</p>
+
+  <p>Therefore,</p>
+  $$
+  L'(r,t)\approx
+  \pi\rho U_{\mathrm{eff}}(r,t)^2 c(r)\alpha_{\mathrm{eff}}(r,t).
+  $$
+
+  <p class="note">This attached-flow formula is not valid during strong stall or strong leading-edge-vortex phases, but it is the cleanest first approximation.</p>
+
+  <h2>6. From sectional forces to whole-bird force</h2>
+
+  <p>The total lift from one wing is</p>
+  $$
+  L_{\text{one wing}}(t)=\int_0^b L'(r,t)\,dr.
+  $$
+
+  <p>For two wings,</p>
+  $$
+  L(t)=2\int_0^b L'(r,t)\,dr.
+  $$
+
+  <p>Similarly, the total wing drag is</p>
+  $$
+  D_{\text{wing}}(t)=2\int_0^b D'(r,t)\,dr.
+  $$
+
+  <p>However, lift and drag are defined relative to the local relative wind, not directly relative to the ground. Resolving them into vertical and forward components gives</p>
+  $$
+  F_z'(r,t)=L'(r,t)\cos\gamma(r,t)-D'(r,t)\sin\gamma(r,t),
+  $$
+  $$
+  F_x'(r,t)=L'(r,t)\sin\gamma(r,t)-D'(r,t)\cos\gamma(r,t).
+  $$
+
+  <p>The whole-bird force components are</p>
+  $$
+  F_z(t)=2\int_0^b F_z'(r,t)\,dr,
+  $$
+  $$
+  F_x(t)=2\int_0^b F_x'(r,t)\,dr.
+  $$
+
+  <p>The flight constraints are therefore</p>
+  $$
+  \frac1T\int_0^T F_z(t)\,dt=mg,
+  $$
+  $$
+  \frac1T\int_0^T F_x(t)\,dt=D.
+  $$
+
+  <h2>7. Why flapping produces thrust</h2>
+
+  <p>A fixed wing mainly produces lift perpendicular to the oncoming flow. A flapping wing changes the oncoming-flow direction. Therefore the aerodynamic force can tilt forward.</p>
+
+  <p>For small $\gamma$,</p>
+  $$
+  \sin\gamma\approx \gamma\approx \frac{\dot h}{U}.
+  $$
+
+  <p>Ignoring drag for the moment,</p>
+  $$
+  F_x'(r,t)\approx L'(r,t)\frac{\dot h(r,t)}{U}.
+  $$
+
+  <p>Thus the mean thrust depends on a correlation:</p>
+  $$
+  \langle F_x\rangle \sim \left\langle L\frac{\dot h}{U}\right\rangle.
+  $$
+
+  <div class="box">
+    Thrust is not produced merely by moving the wing. It is produced by synchronizing lift production with the phase of motion that tilts the aerodynamic force forward.
+  </div>
+
+  <h2>8. Why the downstroke is usually dominant</h2>
+
+  <div class="symbols">
+    <p>$S_{\text{down}}$ = effective wing area during downstroke.</p>
+    <p>$S_{\text{up}}$ = effective wing area during upstroke.</p>
+  </div>
+
+  <p>Many birds extend the wing during downstroke and partially fold or twist it during upstroke, so</p>
+  $$
+  S_{\text{down}}>S_{\text{up}}.
+  $$
+
+  <p>A rough cycle-averaged vertical force estimate is</p>
+  $$
+  \langle F_z\rangle\approx
+  \frac1T\left[
+  \int_{\text{downstroke}}\frac12\rho U_{\mathrm{eff}}^2S_{\text{down}}C_L\,dt
+  +
+  \int_{\text{upstroke}}\frac12\rho U_{\mathrm{eff}}^2S_{\text{up}}C_L\,dt
+  \right].
+  $$
+
+  <p>The upstroke is not irrelevant. It is often configured to reduce negative lift and reduce energetic cost.</p>
+
+  <h2>9. Circulation: a deeper description of lift</h2>
+
+  <div class="symbols">
+    <p>$\boldsymbol{\omega}=\nabla\times\mathbf{u}$ = vorticity field.</p>
+    <p>$\Gamma(r,t)$ = bound circulation around the wing section at span $r$.</p>
+    <p>$C$ = closed curve surrounding the wing section.</p>
+    <p>$d\mathbf{l}$ = differential line element along $C$.</p>
+  </div>
+
+  <p>Circulation is defined as</p>
+  $$
+  \Gamma=\oint_C \mathbf{u}\cdot d\mathbf{l}.
+  $$
+
+  <p>For a wing section in relative flow of speed $U_{\mathrm{eff}}$, the Kutta–Joukowski theorem gives</p>
+  $$
+  L'(r,t)=\rho U_{\mathrm{eff}}(r,t)\Gamma(r,t).
+  $$
+
+  <p>For small-angle attached flow,</p>
+  $$
+  \Gamma(r,t)\sim \pi c(r)U_{\mathrm{eff}}(r,t)\alpha_{\mathrm{eff}}(r,t).
+  $$
+
+  <p>Therefore,</p>
+  $$
+  L'(r,t)\sim \pi\rho U_{\mathrm{eff}}(r,t)^2c(r)\alpha_{\mathrm{eff}}(r,t),
+  $$
+  <p>which recovers the thin-airfoil scaling.</p>
+
+  <div class="box">
+    The wing generates bound circulation; bound circulation generates lift.
+  </div>
+
+  <h2>10. Why a flapping wing must shed vortices</h2>
+
+  <div class="symbols">
+    <p>$D/Dt$ = material derivative following the fluid motion.</p>
+  </div>
+
+  <p>The material derivative is</p>
+  $$
+  \frac{D}{Dt}=\frac{\partial}{\partial t}+\mathbf{u}\cdot\nabla.
+  $$
+
+  <p>In inviscid flow, Kelvin's circulation theorem states</p>
+  $$
+  \frac{D\Gamma}{Dt}=0.
+  $$
+
+  <p>If a wing changes its bound circulation $\Gamma(r,t)$, the surrounding fluid must acquire compensating circulation. That compensating circulation appears as shed vorticity in the wake.</p>
+
+  <div class="box">
+    Time-varying wing circulation implies vortex shedding.
+  </div>
+
+  <h2>11. Momentum balance: pushing air downward and backward</h2>
+
+  <div class="symbols">
+    <p>$\Omega$ = control volume of air enclosing the bird and wake.</p>
+    <p>$\partial\Omega$ = boundary of the control volume.</p>
+    <p>$\mathbf{n}$ = outward unit normal on $\partial\Omega$.</p>
+    <p>$dV$ = differential volume element.</p>
+    <p>$dS$ = differential surface element.</p>
+  </div>
+
+  <p>The momentum balance for the air is</p>
+  $$
+  \mathbf{F}_{\text{bird on air}}
+  =
+  \frac{d}{dt}\int_{\Omega}\rho\mathbf{u}\,dV
+  +
+  \int_{\partial\Omega}\rho\mathbf{u}(\mathbf{u}\cdot\mathbf{n})\,dS
+  +
+  \int_{\partial\Omega}p\mathbf{n}\,dS.
+  $$
+
+  <p>By Newton's third law,</p>
+  $$
+  \mathbf{F}_{\text{air on bird}}=-\mathbf{F}_{\text{bird on air}}.
+  $$
+
+  <p>Thus downward wake momentum produces lift, and backward wake momentum produces thrust.</p>
+
+  <h2>12. Vortex impulse formulation</h2>
+
+  <div class="symbols">
+    <p>$\mathbf{I}(t)$ = hydrodynamic impulse of the vortex wake.</p>
+    <p>$\mathbf{x}$ = position vector.</p>
+    <p>$\boldsymbol{\omega}$ = vorticity field.</p>
+  </div>
+
+  <p>For an incompressible fluid,</p>
+  $$
+  \mathbf{I}(t)=\frac{\rho}{2}\int_{\Omega}\mathbf{x}\times\boldsymbol{\omega}\,dV.
+  $$
+
+  <p>The aerodynamic force is related to the time rate of change of impulse:</p>
+  $$
+  \mathbf{F}(t)\approx -\frac{d\mathbf{I}}{dt}.
+  $$
+
+  <div class="box">
+    The bird generates force by changing the vortex impulse of the wake.
+  </div>
+
+  <h2>13. Vortex-ring picture of slow flapping flight</h2>
+
+  <div class="symbols">
+    <p>$R$ = characteristic vortex-ring radius.</p>
+    <p>$\Gamma_{\text{ring}}$ = circulation of one vortex ring.</p>
+    <p>$f$ = wingbeat frequency.</p>
+    <p>$I_{\text{ring}}$ = impulse of one vortex ring.</p>
+  </div>
+
+  <p>The impulse of one vortex ring scales as</p>
+  $$
+  I_{\text{ring}}\sim \rho\Gamma_{\text{ring}}\pi R^2.
+  $$
+
+  <p>If rings are produced at frequency $f$, the average force scales as</p>
+  $$
+  \bar F\sim fI_{\text{ring}}.
+  $$
+
+  <p>Therefore,</p>
+  $$
+  \bar F\sim \rho f\Gamma_{\text{ring}}R^2.
+  $$
+
+  <p>For weight support,</p>
+  $$
+  mg\sim \rho f\Gamma_{\text{ring}}R^2.
+  $$
+
+  <h2>14. Added mass: accelerating nearby air</h2>
+
+  <div class="symbols">
+    <p>$m_a'(r)$ = added mass per unit span.</p>
+  </div>
+
+  <p>For a wing section of chord $c(r)$,</p>
+  $$
+  m_a'(r)\sim \rho c(r)^2.
+  $$
+
+  <p>The added-mass force per unit span scales as</p>
+  $$
+  F_a'(r,t)\sim m_a'(r)\ddot h(r,t).
+  $$
+
+  <p>Thus,</p>
+  $$
+  F_a'(r,t)\sim \rho c(r)^2\ddot h(r,t).
+  $$
+
+  <p>Since</p>
+  $$
+  \ddot h(r,t)=-\omega^2H(r)\sin(\omega t),
+  $$
+  <p>the force magnitude scales as</p>
+  $$
+  |F_a'|\sim \rho c(r)^2\omega^2H(r).
+  $$
+
+  <div class="box">
+    High-frequency flapping is expensive because acceleration scales like $\omega^2$.
+  </div>
+
+  <h2>15. Unsteady airfoil theory: Theodorsen model</h2>
+
+  <div class="symbols">
+    <p>$c$ = airfoil chord.</p>
+    <p>$b_c = c/2$ = airfoil semichord.</p>
+    <p>$h(t)$ = vertical displacement of the airfoil.</p>
+    <p>$\alpha(t)$ = pitch angle of the airfoil.</p>
+    <p>$a$ = dimensionless pitch-axis location relative to mid-chord.</p>
+    <p>$U$ = forward flight speed.</p>
+    <p>$k=\omega b_c/U$ = reduced frequency.</p>
+    <p>$H_0^{(2)}$ and $H_1^{(2)}$ = Hankel functions of the second kind.</p>
+  </div>
+
+  <p>Theodorsen's function is</p>
+  $$
+  C(k)=\frac{H_1^{(2)}(k)}{H_1^{(2)}(k)+iH_0^{(2)}(k)}.
+  $$
+
+  <p>The lift per unit span is</p>
+  $$
+  L'
+  =
+  \pi\rho b_c^2
+  \left(
+  \ddot h+U\dot\alpha-b_c a\ddot\alpha
+  \right)
+  +
+  2\pi\rho U b_c C(k)
+  \left[
+  U\alpha+\dot h+b_c\left(\frac12-a\right)\dot\alpha
+  \right].
+  $$
+
+  <p>This decomposes as</p>
+  $$
+  L'=L'_{\text{added mass}}+L'_{\text{circulatory}}.
+  $$
+
+  <p>The first term is non-circulatory added-mass lift. The second term is circulatory lift. Real bird wings are finite, deformable, feathered, and often separated, so this is not a complete biological model; it is a mathematically clean reference model.</p>
+
+  <h2>16. Dimensionless numbers</h2>
+
+  <h3>16.1 Reynolds number</h3>
+  <div class="symbols">
+    <p>$Re$ = Reynolds number.</p>
+    <p>$c$ = characteristic chord length.</p>
+  </div>
+
+  $$
+  Re=\frac{\rho Uc}{\mu}=\frac{Uc}{\nu}.
+  $$
+
+  <p>It compares inertial and viscous effects. For birds, typically</p>
+  $$
+  Re\sim 10^4-10^6.
+  $$
+
+  <h3>16.2 Strouhal number</h3>
+  <div class="symbols">
+    <p>$St$ = Strouhal number.</p>
+    <p>$A$ = peak-to-peak flapping amplitude.</p>
+  </div>
+
+  $$
+  St=\frac{fA}{U}.
+  $$
+
+  <p>Efficient flapping flight often lies near</p>
+  $$
+  St\sim 0.2-0.4.
+  $$
+
+  <h3>16.3 Reduced frequency</h3>
+  <div class="symbols">
+    <p>$k$ = reduced frequency.</p>
+  </div>
+
+  <p>Using chord $c$,</p>
+  $$
+  k=\frac{\pi f c}{U}.
+  $$
+
+  <p>Equivalently, using semichord $b_c=c/2$,</p>
+  $$
+  k=\frac{\omega b_c}{U}.
+  $$
+
+  <p>If $k\ll 1$, the flow is nearly quasi-steady. If $k=O(1)$, unsteady effects are essential.</p>
+
+  <h2>17. Wing twist and spanwise variation</h2>
+
+  <div class="symbols">
+    <p>$V_x(r,t)$ = local forward component of relative airflow.</p>
+    <p>$V_z(r,t)$ = local vertical component of relative airflow.</p>
+    <p>$\alpha^*$ = target effective angle of attack.</p>
+  </div>
+
+  <p>The local effective angle of attack is</p>
+  $$
+  \alpha_{\mathrm{eff}}(r,t)
+  =
+  \theta(r,t)-\tan^{-1}\left(\frac{V_z(r,t)}{V_x(r,t)}\right).
+  $$
+
+  <p>To keep $\alpha_{\mathrm{eff}}$ near a useful target $\alpha^*$, the wing should approximately satisfy</p>
+  $$
+  \theta(r,t)
+  \approx
+  \alpha^*+\tan^{-1}\left(\frac{V_z(r,t)}{V_x(r,t)}\right).
+  $$
+
+  <p>This is why real bird wings twist spanwise. Different parts of the wing experience different relative velocities.</p>
+
+  <h2>18. Aeroelasticity: the wing is deformable</h2>
+
+  <div class="symbols">
+    <p>$s$ = coordinate along the wing structure.</p>
+    <p>$y(s,t)$ = bending displacement.</p>
+    <p>$\rho_s$ = density of wing material.</p>
+    <p>$A_s$ = cross-sectional area of the wing structure.</p>
+    <p>$E$ = effective elastic modulus.</p>
+    <p>$I_s$ = second moment of area of the wing structure.</p>
+    <p>$f_{\text{aero}}(s,t)$ = aerodynamic force per unit length.</p>
+    <p>$f_{\text{muscle}}(s,t)$ = active muscular force per unit length.</p>
+  </div>
+
+  <p>A simplified beam equation is</p>
+  $$
+  \rho_sA_s\frac{\partial^2y}{\partial t^2}
+  +
+  EI_s\frac{\partial^4y}{\partial s^4}
+  =
+  f_{\text{aero}}(s,t)+f_{\text{muscle}}(s,t).
+  $$
+
+  <p>This says:</p>
+  $$
+  \text{structural inertia}+\text{elastic restoring force}
+  =
+  \text{aerodynamic forcing}+\text{muscular forcing}.
+  $$
+
+  <div class="symbols">
+    <p>$Ca$ = aeroelastic Cauchy-like number.</p>
+    <p>$L$ = characteristic wing length.</p>
+  </div>
+
+  <p>A useful aeroelastic nondimensional number is</p>
+  $$
+  Ca=\frac{\rho U^2L^3}{EI_s}.
+  $$
+
+  <p>Large $Ca$ means aerodynamic loads significantly deform the wing. Small $Ca$ means the wing is nearly rigid.</p>
+
+  <h2>19. Power required for flapping flight</h2>
+
+  <div class="symbols">
+    <p>$P(t)$ = instantaneous mechanical power delivered to the air.</p>
+    <p>$\bar P$ = mean aerodynamic power over one wingbeat period.</p>
+    <p>$\eta$ = muscle efficiency.</p>
+  </div>
+
+  <p>The local mechanical power is force dot velocity. Using the full stress formulation,</p>
+  $$
+  P(t)=\int_{S_w(t)}\left[\boldsymbol{\sigma}\mathbf{n}\right]\cdot\mathbf{V}_w\,dS.
+  $$
+
+  <p>The mean aerodynamic power is</p>
+  $$
+  \bar P=\frac1T\int_0^T P(t)\,dt.
+  $$
+
+  <p>The metabolic power is approximately</p>
+  $$
+  P_{\text{metabolic}}\approx \frac{\bar P}{\eta}.
+  $$
+
+  <div class="symbols">
+    <p>$P_{\text{induced}}$ = power needed to generate lift by accelerating air downward.</p>
+    <p>$P_{\text{profile}}$ = power lost to drag on the wings.</p>
+    <p>$P_{\text{parasite}}$ = power lost to drag on the body.</p>
+    <p>$P_{\text{inertial}}$ = power associated with accelerating and decelerating the wings.</p>
+  </div>
+
+  <p>The mean aerodynamic power decomposes approximately as</p>
+  $$
+  \bar P\approx P_{\text{induced}}+P_{\text{profile}}+P_{\text{parasite}}+P_{\text{inertial}}.
+  $$
+
+  <p>A useful induced-power scaling is</p>
+  $$
+  P_{\text{induced}}\sim \frac{W^2}{\rho SU}.
+  $$
+
+  <div class="symbols">
+    <p>$S_b$ = body frontal area.</p>
+    <p>$C_{D,\text{wing}}$ = wing drag coefficient.</p>
+    <p>$C_{D,\text{body}}$ = body drag coefficient.</p>
+  </div>
+
+  <p>Profile and parasite power scale approximately as</p>
+  $$
+  P_{\text{profile}}\sim \rho S U^3 C_{D,\text{wing}},
+  $$
+  $$
+  P_{\text{parasite}}\sim \rho S_b U^3 C_{D,\text{body}}.
+  $$
+
+  <p>Thus a generic flight power curve has the form</p>
+  $$
+  P(U)\sim \frac{A_1}{U}+A_2U^3+A_3,
+  $$
+
+  <p>where $A_1$, $A_2$, and $A_3$ are constants depending on body size, wing shape, air density, and flapping mechanics.</p>
+
+  <p>Low-speed flight is expensive because induced power is large. High-speed flight is expensive because drag power grows like $U^3$.</p>
+
+  <h2>20. Final synthesis</h2>
+
+  <p>The wing motion defines</p>
+  $$
+  h(r,t),\qquad \theta(r,t).
+  $$
+
+  <p>These determine the local relative airflow:</p>
+  $$
+  U_{\mathrm{eff}}(r,t),\qquad \alpha_{\mathrm{eff}}(r,t).
+  $$
+
+  <p>These determine local circulation and pressure:</p>
+  $$
+  \Gamma(r,t),\qquad p(\mathbf{x},t).
+  $$
+
+  <p>These determine aerodynamic force:</p>
+  $$
+  \mathbf{F}(t)=\int_{S_w(t)}\boldsymbol{\sigma}\mathbf{n}\,dS.
+  $$
+
+  <p>Because circulation changes in time, the wing sheds vortices. The vorticity field obeys</p>
+  $$
+  \frac{\partial\boldsymbol{\omega}}{\partial t}
+  +
+  \mathbf{u}\cdot\nabla\boldsymbol{\omega}
+  =
+  \boldsymbol{\omega}\cdot\nabla\mathbf{u}
+  +
+  \nu\nabla^2\boldsymbol{\omega}.
+  $$
+
+  <p>The wake carries impulse:</p>
+  $$
+  \mathbf{I}(t)=\frac{\rho}{2}\int \mathbf{x}\times\boldsymbol{\omega}\,dV.
+  $$
+
+  <p>The bird receives force roughly according to</p>
+  $$
+  \mathbf{F}(t)\approx -\frac{d\mathbf{I}}{dt}.
+  $$
+
+  <p>The cycle-averaged constraints are</p>
+  $$
+  \langle F_z\rangle=mg,
+  $$
+  $$
+  \langle F_x\rangle=D.
+  $$
+
+  <p>The energetic cost is</p>
+  $$
+  \bar P
+  =
+  \frac1T\int_0^T\int_{S_w(t)}
+  \left[\boldsymbol{\sigma}\mathbf{n}\right]\cdot\mathbf{V}_w
+  \,dS\,dt.
+  $$
+
+  <div class="box">
+    Birds fly by imposing time-dependent motion and twist on deformable finite wings, generating time-dependent circulation, shedding a structured vortex wake, and thereby transferring downward and backward momentum to the air. The reaction force supports weight and produces thrust.
+  </div>
+
+  <p>The compact mathematical chain is</p>
+  $$
+  h(r,t),\theta(r,t)
+  \rightarrow
+  \alpha_{\mathrm{eff}}(r,t)
+  \rightarrow
+  \Gamma(r,t)
+  \rightarrow
+  \boldsymbol{\omega}(\mathbf{x},t)
+  \rightarrow
+  \mathbf{I}(t)
+  \rightarrow
+  \mathbf{F}(t)
+  \rightarrow
+  \bar P.
+  $$
+
+</article>
+</main>
 </body>
 </html>
