@@ -1,0 +1,130 @@
+{
+  "skill_name": "sci-math-site",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I want to build a scientific education page about the double pendulum and chaos theory. It should have the full mathematical derivation using Lagrangian mechanics (Euler-Lagrange equations, equations of motion, energy), all the equations rendered as proper LaTeX, and an interactive 3D simulation where I can adjust the initial angles, masses, and rod lengths with sliders and watch the chaotic trajectory unfold. Set up the full Next.js + MDX + KaTeX + React Three Fiber stack from scratch in a new folder called 'chaos-site' inside C:\\Users\\simon\\Downloads.",
+      "expected_output": "A working Next.js 16 project in C:\\Users\\simon\\Downloads\\chaos-site with: next.config.ts using string-based Turbopack MDX plugins, mdx-components.tsx with no-args useMDXComponents, a DoublePendulumDemo component using React Three Fiber with working sliders, an MDX page with LaTeX Lagrangian derivation, and npm run build passing cleanly.",
+      "assertions": [
+        {
+          "name": "next_config_uses_string_plugins",
+          "description": "next.config.ts passes remark-math and rehype-katex as strings, not imported modules",
+          "check": "file_contains",
+          "file": "chaos-site/next.config.ts",
+          "pattern": "\"remark-math\""
+        },
+        {
+          "name": "mdx_components_no_args",
+          "description": "useMDXComponents() takes no arguments (Next.js 16 API)",
+          "check": "file_contains",
+          "file": "chaos-site/mdx-components.tsx",
+          "pattern": "useMDXComponents(): MDXComponents"
+        },
+        {
+          "name": "lazy_wrapper_exists",
+          "description": "A client-side lazy wrapper exists for the 3D component",
+          "check": "file_exists",
+          "file": "chaos-site/src/components/visualizations"
+        },
+        {
+          "name": "mdx_page_has_latex",
+          "description": "The MDX physics page contains block LaTeX equations",
+          "check": "file_contains_pattern",
+          "file": "chaos-site/src/app",
+          "pattern": "\\$\\$"
+        },
+        {
+          "name": "compute_physics_exported",
+          "description": "computePhysics function is exported from the simulation component",
+          "check": "file_contains",
+          "file": "chaos-site/src/components/visualizations",
+          "pattern": "export function computePhysics"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I'm building a physics education site and want to add a module about orbital mechanics and Kepler's laws. I already have a Next.js + MDX site set up. I need: a full derivation covering Newton's law of gravitation, the two-body problem, conic section orbits, Kepler's three laws with proofs, vis-viva equation, and escape velocity. Plus an interactive React Three Fiber simulation showing an orbiting body with adjustable semi-major axis, eccentricity, and mass ratio — with live display of orbital period, velocity, and energy. Just give me the files I need to add, not a full scaffold. Save the output files to C:\\Users\\simon\\Downloads\\orbital-module.",
+      "expected_output": "A set of files in C:\\Users\\simon\\Downloads\\orbital-module: an MDX file with the full Kepler derivation, an OrbitalSimulation.tsx R3F component, OrbitalSimulationLazy.tsx client wrapper, OrbitalSimulationDemo.tsx with sliders, and a computePhysics export covering period, velocity, energy, and eccentricity.",
+      "assertions": [
+        {
+          "name": "mdx_has_keplers_laws",
+          "description": "MDX content covers Kepler's three laws",
+          "check": "file_contains_pattern",
+          "file": "orbital-module",
+          "pattern": "[Kk]epler"
+        },
+        {
+          "name": "latex_equations_present",
+          "description": "MDX file has block LaTeX with physics equations",
+          "check": "file_contains_pattern",
+          "file": "orbital-module",
+          "pattern": "\\$\\$"
+        },
+        {
+          "name": "r3f_component_exists",
+          "description": "An R3F simulation component exists",
+          "check": "file_exists_with_content",
+          "file": "orbital-module",
+          "pattern": "useFrame"
+        },
+        {
+          "name": "lazy_wrapper_uses_dynamic",
+          "description": "Lazy wrapper uses next/dynamic with ssr: false",
+          "check": "file_contains_pattern",
+          "file": "orbital-module",
+          "pattern": "ssr.*false"
+        },
+        {
+          "name": "physics_readout_quantities",
+          "description": "Live readout includes orbital period and energy",
+          "check": "file_contains_pattern",
+          "file": "orbital-module",
+          "pattern": "[Pp]eriod|[Ee]nergy"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create the derivation page and 3D visualization for the quantum harmonic oscillator. I want the full mathematical treatment: Schrödinger equation setup, ladder operators, energy eigenvalues E_n = (n + 1/2)ℏω, wave functions ψ_n(x), probability densities, zero-point energy, and comparison to classical oscillator. The 3D visualization should show the probability density cloud for adjustable quantum number n (0–6) and angular frequency ω, with the classical turning points visible. Save to C:\\Users\\simon\\Downloads\\qho-module.",
+      "expected_output": "Files in C:\\Users\\simon\\Downloads\\qho-module: MDX derivation with Schrödinger equation, ladder operators, energy levels, and wave functions in LaTeX; an R3F component visualizing the probability density |ψ_n(x)|² for different n values; parameter sliders for n and ω; live readout of energy E_n, zero-point energy, and classical turning points.",
+      "assertions": [
+        {
+          "name": "schrodinger_equation_present",
+          "description": "Schrödinger equation appears in the derivation",
+          "check": "file_contains_pattern",
+          "file": "qho-module",
+          "pattern": "[Ss]chr.dinger|\\\\hat\\{H\\}|\\\\psi"
+        },
+        {
+          "name": "energy_eigenvalues_present",
+          "description": "Energy eigenvalue formula E_n appears",
+          "check": "file_contains_pattern",
+          "file": "qho-module",
+          "pattern": "E_n|\\\\hbar.*\\\\omega|n.*\\+.*1"
+        },
+        {
+          "name": "ladder_operators_covered",
+          "description": "Ladder operators (creation/annihilation) are discussed",
+          "check": "file_contains_pattern",
+          "file": "qho-module",
+          "pattern": "ladder|creation|annihilation|\\\\hat\\{a\\}"
+        },
+        {
+          "name": "r3f_visualization_present",
+          "description": "R3F component for probability density visualization exists",
+          "check": "file_exists_with_content",
+          "file": "qho-module",
+          "pattern": "useFrame|Canvas"
+        },
+        {
+          "name": "quantum_number_slider",
+          "description": "Slider or parameter for quantum number n is present",
+          "check": "file_contains_pattern",
+          "file": "qho-module",
+          "pattern": "quantum.*number|n.*slider|quantumN"
+        }
+      ]
+    }
+  ]
+}
