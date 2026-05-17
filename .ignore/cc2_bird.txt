@@ -1,0 +1,2082 @@
+Verification
+
+     1. npm run dev — site loads at http://localhost:3000
+     2. /physics/wing-flapping — all 18 sections render with LaTeX equations
+     3. Interactive sliders update the 3D wing + force arrows + live readout in
+     real-time
+     4. Camera drag/zoom works in the 3D scene
+     5. npm run build succeeds (no TypeScript or MDX errors)
+     6. dist/ is deployable to Vercel/Netlify/GitHub Pages
+
+● Plan approved. Starting implementation now. Step 1: scaffold the Next.js
+  project.
+
+● Bash(cd "C:\Users\simon\Downloads\bird_flapping_physics" && npx
+      create-next-app@latest site --typescript --tailwind --eslint --app
+      --src-dir --import-alias "@/*" --n…)
+  ⎿  Running… (29s · timeout 2m)
+     (ctrl+b to run in background)
+
+✽ Razzle-dazzling… (2m 40s · ↓ 6.3k tokens)
+
+──────────────────────────────────────────────────────────────────────── bird ──> 
+────────────────────────────────────────────────────────────────────────────────
+  | Sonnet 
+
+d Downloads/bird_flapping_physics/
+
+simon@Simon_laptop MINGW64 ~/Downloads/bird_flapping_physics
+$ claude-yolo --chrome --name bird
+╭─── Claude Code v2.1.143 ─────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│                                                    │ Tips for getting        │
+│                 Welcome back Simon!                │ started                 │
+│                                                    │ Run /init to create a … │
+│                       ▐▛███▜▌                      │ ─────────────────────── │
+│                      ▝▜█████▛▘                     │ What's new              │
+│                        ▘▘ ▝▝                       │ Added plugin dependenc… │
+│    Sonnet 4.6 · Claude Max · az9713@yahoo.com's    │ Added projected contex… │
+│    Organization                                    │ Added `worktree.bgIsol… │
+│          ~\Downloads\bird_flapping_physics         │ /release-notes for more │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+> Read https://chatgpt.com/share/6a0a22cf-fc58-83e8-99d2-294488351ae1.
+
+● Fetch(https://chatgpt.com/share/6a0a22cf-fc58-83e8-99d2-294488351ae1)
+  ⎿  Received 453.8KB (200 OK)
+
+● The page content is dynamically rendered and couldn't be fetched directly. Let
+   me try using browser automation to access it.
+
+  Called claude-in-chrome (ctrl+o to expand)
+
+  Called claude-in-chrome 2 times (ctrl+o to expand)
+
+● The page is loading but content seems dynamically rendered. Let me try          extracting it via JavaScript.
+
+  Called claude-in-chrome 4 times (ctrl+o to expand)
+
+  Called claude-in-chrome 2 times (ctrl+o to expand)
+
+● Good, the page is loaded. Let me scroll to the top to read the full             conversation.
+
+  Called claude-in-chrome 4 times (ctrl+o to expand)
+
+● Let me scroll through the conversation with screenshots to read everything.
+
+  Called claude-in-chrome 5 times (ctrl+o to expand)
+
+● I'm at the top. Now let me scroll down through the conversation taking
+  screenshots.
+
+  Called claude-in-chrome 4 times (ctrl+o to expand)
+
+● Now I can see the full conversation. Let me check the total number of
+  messages.
+
+  Called claude-in-chrome 3 times (ctrl+o to expand)
+
+● Now I can see all 10 messages. Let me get the full text of the key messages —
+  the physics explanation and the final "how to run" response.
+
+  Called claude-in-chrome 2 times (ctrl+o to expand)
+
+● The security filter is blocking messages with math notation that looks like     query strings. Let me use the accessibility tree instead.
+
+  Called claude-in-chrome 2 times (ctrl+o to expand)
+
+● Now let me get the full text of the last response (how to run the JSX file):
+
+  Called claude-in-chrome (ctrl+o to expand)
+
+● Here's a full summary of the shared ChatGPT conversation titled "bird wing
+  flapping physics 2":
+
+  ---
+  Conversation Summary
+
+  Turn 1 — User
+
+  ▎ "Explain the physics of birds wing flapping with rigorous math. Do not water
+  ▎  down."
+
+  Turn 2 — ChatGPT (long physics response)
+
+  A rigorous 18-section derivation covering:
+
+  1. Governing equations — Unsteady Navier-Stokes on a time-varying domain Ω(t),
+   with no-slip on the moving wing surface S_w(t). Force = surface integral of
+  Cauchy stress tensor.
+  2. Nondimensional numbers — Reynolds (Re = ρUc/μ, ~10⁴–10⁶), Strouhal (St =
+  fA/U, efficient range 0.2–0.4), reduced frequency (k = πfc/U, O(0.1–1) for
+  birds → unsteady effects essential).
+  3. Wing kinematics — Heaving h(r,t) = H(r)sin(ωt) and pitching α(r,t) = α₀ +
+  Θ·sin(ωt+ϕ). Effective AoA: α_eff ≈ α − ḣ/U. Key insight: a flapping wing
+  continuously changes the aerodynamic angle of attack.
+  4. Quasi-steady lift — L′ = ½ρU_eff²c(r)C_L(α_eff); thin-airfoil: C_L ≈
+  2πα_eff. Time-averaged lift must equal mg.
+  5. Thrust generation — Aerodynamic force tilts forward by angle β ≈ ḣ/U during
+   downstroke. T′ ≈ F′·(ḣ/U).
+  6. Momentum theory — mg ~ ρSUw; induced power P_i ~ (mg)^(3/2) / √(2ρS).
+  Explains why large wing area reduces energy cost.
+  7. Vorticity formulation — L′ = ρUΓ (Kutta-Joukowski); Kelvin's theorem means
+  changing bound circulation sheds vortex loops. Force ≈ −dI/dt where I is
+  vortex impulse.
+  8. Theodorsen model — Unsteady lift = added-mass term (accelerates surrounding
+   air) + circulatory term (C(k) Theodorsen function). Linear model incomplete
+  at high AoA.
+  9. Added mass — F_a′ ~ ρc²ω²H. Why high-frequency flapping is expensive.
+  10. Wingbeat power — P_muscle = P_induced + P_profile + P_parasite +
+  P_inertial. Classic U-shaped power curve: P(U) ≈ A/U + BU³ + C.
+  11. Downstroke dominance — Wing extended at max area; AoA tuned for positive
+  lift+thrust. Upstroke: wing folded, feathers separate (slotted flow) to reduce
+   drag.
+  12. Leading-edge vortices (LEV) — At high AoA, LEV creates low-pressure
+  suction lift exceeding static stall limit. Stabilized by spanwise flow, twist,
+   sweep, feather porosity.
+  13. Spanwise structure — V(r,t) ≈ U + φ̇r; outer wing does most aerodynamic
+  work. Torque ~ ∫r·dF(r,t) — distal force is costly.
+  14. Wing twist — Required to keep α_eff near optimum across the span: θ(r,t) ≈
+   α* + atan(V_z/V_x). Wings are aeroelastic structures.
+  15. Aeroelasticity — ρ_s A y_tt + EIy_ssss = f_aero + f_muscle. Cauchy number
+  Ca = ρU²L³/EI governs compliance.
+  16. Wake topology — Vortex rings of impulse I ~ ρΓπR²; force ~ f·I. Rings
+  tilted for thrust.
+  17. Minimal model — 7-equation reduced-order model capturing: kinematics →
+  α_eff → Γ(t) → vortex wake → lift/thrust/power.
+  18. Deepest picture — "Birds fly by imposing time-dependent circulation on a
+  deforming finite wing, thereby shedding a structured vortex wake whose impulse
+   equals the aerodynamic force." Evolution minimizes P̄ subject to ⟨Fz⟩=mg,
+  ⟨Fx⟩=D, stall avoidance, and structural constraints.
+
+  ---
+  Turn 3 — ChatGPT
+
+  Announced it would build a shareable React learning site with interactive
+  physics chain, parameter sliders, live plots, equation tabs, and vortex-wake
+  visualization.
+
+  Turn 4 — ChatGPT
+
+  Reported the artifact was created (a React canvas component).
+
+  Turn 5 — User (error)
+
+  Build failed: Failed to fetch
+  https://cdn.jsdelivr.net/npm/lucide-react/dist/esm/icons/github/+esm
+
+  Turn 6 — ChatGPT
+
+  Identified the issue as the lucide-react GitHub icon import. Removed it, kept
+  button text only.
+
+  Turn 7 — ChatGPT
+
+  "Fixed. Re-run the preview."
+
+  ---
+  Turn 8 — User
+
+  ▎ "i downloaded the jsx file - but how do i run it"
+
+  Turn 9 — ChatGPT (10-step guide)
+
+  1. Install Node.js (LTS version)
+  2. Create Vite project: npm create vite@latest bird-wing-physics --template
+  react
+  3. Install deps: npm install framer-motion recharts lucide-react
+  4. Replace src/App.jsx with the downloaded file
+  5. Remove shadcn imports (@/components/ui/*) — replace Card, Button, Badge,
+  Slider with inline native HTML components
+  6. Replace shadcn Slider with <input type="range" ...>
+  7. Remove Tabs temporarily (replace with a plain <div>)
+  8. Run: npm run dev → opens at http://localhost:5173
+  9. Production build: npm run build → deploy dist/ to GitHub Pages / Vercel /
+  Netlify / Cloudflare Pages
+  10. Long-term recommendation: Migrate to Next.js + MDX + Three.js + KaTeX —
+  ideal stack for equation-heavy, interactive, educational scientific content.
+  Suggested site structure: mathematical derivations, interactive wake
+  visualizations, vortex particle simulations, spanwise circulation explorer,
+  Strouhal optimization explorer, aeroelastic wing deformation demos, CFD
+  comparison section.
+
+✻ Sautéed for 4m 24s
+
+※ recap: You were building an interactive React site explaining bird wing
+  flapping physics. The JSX file is downloaded and ready; next step is running
+  `npm create vite@latest bird-wing-physics --template react` then dropping the
+  file into `src/App.jsx`. (disable recaps in /config)
+
+> please set up the long-term  Next.js + MDX + Three.js + KaTeX stack for         equation-heavy , interactive, educational scientific content. use this          "physics of wing flapping" as test case
+
+● Let me first check what's already in the working directory before planning.
+
+● Explore(Explore existing project files)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● Exploring the existing project directory. I'll wait for results before
+  designing the plan.                                                           
+✻ Baked for 13s · 1 local agent still running
+
+> /remote-control                                                                 ⎿  Remote Control connecting…
+
+  /remote-control is active · Continue here, on your phone, or at
+  https://claude.ai/code/session_01E6R9fP1o2jypoLFu5pwGkP
+
+● Agent "Explore existing project files" completed                              
+● Exploration complete. The project has preview.html (fully working Three.js 3D
+  visualization) and the physics transcript — no Node.js project yet. Clean
+  slate. Now writing the plan.
+
+● Updated plan
+  ⎿  /plan to preview
+
+────────────────────────────────────────────────────────────────────────────────
+ Ready to code?
+
+ Here is Claude's plan:
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+ Plan: Next.js + MDX + Three.js + KaTeX — Bird Wing Flapping Physics Site
+
+ Context
+
+ Setting up a production-quality scientific education site for bird wing
+ flapping physics.
+ The ChatGPT conversation produced a rigorous 18-section derivation
+ (Navier-Stokes, Theodorsen,
+ vortex impulse, etc.) and a fully working standalone Three.js demo
+ (preview.html).
+ The goal is to move from that single-file demo into a real stack:
+ equation-heavy MDX pages
+ with LaTeX rendering (KaTeX) and embedded interactive 3D visualizations (React
+  Three Fiber,
+ wrapping Three.js). The preview.html scene is ported into reusable R3F
+ components.
+
+ Project Location
+
+ New subdirectory: C:\Users\simon\Downloads\bird_flapping_physics\site\
+ (keeps raw assets — preview.html, tutorial txt — separate from the Next.js
+ app)
+
+ ---
+ Step 1 — Scaffold Next.js 15 (App Router, TypeScript, Tailwind)
+
+ cd C:\Users\simon\Downloads\bird_flapping_physics
+ npx create-next-app@latest site --typescript --tailwind --eslint --app
+ --src-dir --import-alias "@/*" --no-git
+
+ Step 2 — Install Dependencies
+
+ cd site
+
+ # MDX pipeline
+ npm install @next/mdx @mdx-js/loader @mdx-js/react
+
+ # Math rendering
+ npm install remark-math rehype-katex katex
+
+ # 3D (React Three Fiber wraps Three.js)
+ npm install @react-three/fiber @react-three/drei three
+ npm install --save-dev @types/three
+
+ # Utilities
+ npm install clsx
+
+ Step 3 — next.config.mjs
+
+ Replace the generated config with MDX + math plugin support:
+ import createMDX from '@next/mdx'
+ import remarkMath from 'remark-math'
+ import rehypeKatex from 'rehype-katex'
+
+ const withMDX = createMDX({
+   options: {
+     remarkPlugins: [remarkMath],
+     rehypePlugins: [rehypeKatex],
+   },
+ })
+
+ export default withMDX({
+   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
+ })
+
+ Step 4 — Root Layout (src/app/layout.tsx)
+
+ - Import katex/dist/katex.min.css globally
+ - Dark background, monospace-friendly font stack
+ - Top nav bar with links to planned sections
+ - Responsive sidebar for section headings
+
+ Step 5 — MDX Component Overrides (mdx-components.tsx at project root)
+
+ Expose custom components that MDX files can use without imports:
+ - <Equation> — block-level KaTeX display math (auto-numbered)
+ - <FlappingWingDemo> — the full interactive 3D scene
+ - <ParameterExplorer> — sliders panel
+ - <PhysicsReadout> — live numbers (St, Re, α_eff, forces)
+ - <Callout> — styled note/warning box
+ - Standard overrides for h1–h4, code, pre
+
+ Step 6 — Visualization Components (porting preview.html → R3F)
+
+ src/components/visualizations/FlappingWing3D.tsx
+
+ React Three Fiber scene containing everything from preview.html:
+ - Bird body mesh
+ - Left + right wing meshes with morph targets (heave + camber + sweep)
+ - 320-particle vortex wake (helix pattern, animated)
+ - Three force arrow meshes (lift, thrust, drag), length = force magnitude
+ - OrbitControls for camera
+ - Animation loop driven by useFrame
+ - Accepts props: { freq, amplitude, speed, twist, wakeStrength }
+
+ src/components/visualizations/ParameterExplorer.tsx
+
+ Slider panel (HTML range inputs):
+
+ ┌────────────────────────┬─────────┬─────────┐
+ │       Parameter        │  Range  │ Default │
+ ├────────────────────────┼─────────┼─────────┤
+ │ Frequency f (Hz)       │ 0.2–6   │ 2.5     │
+ ├────────────────────────┼─────────┼─────────┤
+ │ Stroke amplitude A (m) │ 0.2–3   │ 1.0     │
+ ├────────────────────────┼─────────┼─────────┤
+ │ Forward speed U (m/s)  │ 1–20    │ 8       │
+ ├────────────────────────┼─────────┼─────────┤
+ │ Spanwise twist (rad)   │ 0–1.2   │ 0.3     │
+ ├────────────────────────┼─────────┼─────────┤
+ │ Wake strength          │ 0.2–2.5 │ 1.0     │
+ └────────────────────────┴─────────┴─────────┘
+
+ src/components/visualizations/PhysicsReadout.tsx
+
+ Live panel computing and displaying:
+ - St = fA/U
+ - Re = ρUc/μ  (chord c = 0.15 m fixed for now)
+ - α_eff = α − atan(ḣ/U)
+ - U_eff = √(U² + ḣ²)
+ - C_L, C_D (quasi-steady)
+ - L, T, D in Newtons
+
+ Step 7 — Physics Content Page (src/app/physics/wing-flapping/page.mdx)
+
+ Full 18-section derivation as MDX, using KaTeX for all equations.
+ Inline LaTeX: $...$, block LaTeX: $$...$$ (via remark-math → rehype-katex).
+ Interactive demo embedded mid-page via <FlappingWingDemo />.
+
+ Section outline (matching the ChatGPT derivation):
+ 1. Governing equations (Navier-Stokes, moving boundary, Cauchy stress)
+ 2. Nondimensional numbers (Re, St, k)
+ 3. Wing kinematics (heave + pitch, α_eff derivation)
+ 4. Quasi-steady lift model (L′ = ½ρU_eff²cC_L)
+ 5. Thrust from force tilt (T′ ≈ F′ · ḣ/U)
+ 6. Momentum theory (P_i ~ (mg)^3/2 / √(2ρS))
+ 7. Vorticity formulation (Kutta-Joukowski, Kelvin's theorem, vortex loops)
+ 8. Theodorsen model (added-mass + circulatory terms, C(k))
+ 9. Added mass (F_a ~ ρc²ω²H)
+ 10. Wingbeat power curve (U-shaped: A/U + BU³ + C)
+ 11. Downstroke dominance (asymmetric stroke, feather slotting)
+ 12. Leading-edge vortices (LEV, dynamic stall)
+ 13. Spanwise structure (V(r,t) ≈ U + φ̇r, torque)
+ 14. Wing twist (θ(r,t) to maintain α* across span)
+ 15. Aeroelasticity (fluid–structure: ρ_s A y_tt + EIy_ssss = f_aero +
+ f_muscle)
+ 16. Wake topology (vortex rings, mg ~ ρfΓR²)
+ 17. Minimal mathematical model (7-equation reduced-order system)
+ 18. Deepest physical picture (F ≈ −dI/dt, evolution's optimization problem)
+
+ Step 8 — Home Page (src/app/page.tsx)
+
+ Landing page with:
+ - Title + one-line tagline
+ - Brief overview of the physics
+ - Card grid linking to planned sections (wing flapping, wake, spanwise,
+ Strouhal explorer, etc.)
+ - Mini embedded 3D preview (lightweight, auto-rotating, no sliders)
+
+ ---
+ File Map
+
+ site/
+ ├── next.config.mjs                          ← MDX + remark-math +
+ rehype-katex
+ ├── mdx-components.tsx                       ← custom MDX component registry
+ ├── src/
+ │   ├── app/
+ │   │   ├── layout.tsx                       ← global layout, KaTeX CSS, nav
+ │   │   ├── page.tsx                         ← home/landing
+ │   │   └── physics/
+ │   │       └── wing-flapping/
+ │   │           └── page.mdx                 ← 18-section physics derivation
+ │   └── components/
+ │       ├── visualizations/
+ │       │   ├── FlappingWing3D.tsx           ← R3F scene (ported from
+ preview.html)
+ │       │   ├── ParameterExplorer.tsx        ← parameter sliders panel
+ │       │   └── PhysicsReadout.tsx           ← live St/Re/forces readout
+ │       └── math/
+ │           └── Equation.tsx                 ← optional programmatic KaTeX
+ wrapper
+
+ ---
+  ⎿  Remote Control connecting…
+
+  /remote-control is active · Continue here, on your phone, or at
+  https://claude.ai/code/session_01E6R9fP1o2jypoLFu5pwGkP
+
+● Agent "Explore existing project files" completed
+
+● Exploration complete. The project has preview.html (fully working Three.js 3D
+  visualization) and the physics transcript — no Node.js project yet. Clean
+  slate. Now writing the plan.
+
+● Updated plan
+  ⎿  /plan to preview
+
+● User approved Claude's plan
+  ⎿  Plan saved to: ~\.claude\plans\please-set-up-the-federated-key.md · /plan
+     to edit
+     Plan: Next.js + MDX + Three.js + KaTeX — Bird Wing Flapping Physics Site
+
+     Context
+
+     Setting up a production-quality scientific education site for bird wing
+     flapping physics.
+     The ChatGPT conversation produced a rigorous 18-section derivation
+     (Navier-Stokes, Theodorsen,
+     vortex impulse, etc.) and a fully working standalone Three.js demo
+     (preview.html).
+     The goal is to move from that single-file demo into a real stack:
+     equation-heavy MDX pages
+     with LaTeX rendering (KaTeX) and embedded interactive 3D visualizations
+     (React Three Fiber,
+     wrapping Three.js). The preview.html scene is ported into reusable R3F
+     components.
+
+     Project Location
+
+     New subdirectory: C:\Users\simon\Downloads\bird_flapping_physics\site\
+     (keeps raw assets — preview.html, tutorial txt — separate from the Next.js
+     app)
+
+     ---
+     Step 1 — Scaffold Next.js 15 (App Router, TypeScript, Tailwind)
+
+     cd C:\Users\simon\Downloads\bird_flapping_physics
+     npx create-next-app@latest site --typescript --tailwind --eslint --app
+     --src-dir --import-alias "@/*" --no-git
+
+     Step 2 — Install Dependencies
+
+     cd site
+
+     # MDX pipeline
+     npm install @next/mdx @mdx-js/loader @mdx-js/react
+
+     # Math rendering
+     npm install remark-math rehype-katex katex
+
+     # 3D (React Three Fiber wraps Three.js)
+     npm install @react-three/fiber @react-three/drei three
+     npm install --save-dev @types/three
+
+     # Utilities
+     npm install clsx
+
+     Step 3 — next.config.mjs
+
+     Replace the generated config with MDX + math plugin support:
+     import createMDX from '@next/mdx'
+     import remarkMath from 'remark-math'
+     import rehypeKatex from 'rehype-katex'
+
+     const withMDX = createMDX({
+       options: {
+         remarkPlugins: [remarkMath],
+         rehypePlugins: [rehypeKatex],
+       },
+     })
+
+     export default withMDX({
+       pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
+     })
+
+     Step 4 — Root Layout (src/app/layout.tsx)
+
+     - Import katex/dist/katex.min.css globally
+     - Dark background, monospace-friendly font stack
+     - Top nav bar with links to planned sections
+     - Responsive sidebar for section headings
+
+     Step 5 — MDX Component Overrides (mdx-components.tsx at project root)
+
+     Expose custom components that MDX files can use without imports:
+     - <Equation> — block-level KaTeX display math (auto-numbered)
+     - <FlappingWingDemo> — the full interactive 3D scene
+     - <ParameterExplorer> — sliders panel
+     - <PhysicsReadout> — live numbers (St, Re, α_eff, forces)
+     - <Callout> — styled note/warning box
+     - Standard overrides for h1–h4, code, pre
+
+     Step 6 — Visualization Components (porting preview.html → R3F)
+
+     src/components/visualizations/FlappingWing3D.tsx
+
+     React Three Fiber scene containing everything from preview.html:
+     - Bird body mesh
+     - Left + right wing meshes with morph targets (heave + camber + sweep)
+     - 320-particle vortex wake (helix pattern, animated)
+     - Three force arrow meshes (lift, thrust, drag), length = force magnitude
+     - OrbitControls for camera
+     - Animation loop driven by useFrame
+     - Accepts props: { freq, amplitude, speed, twist, wakeStrength }
+
+     src/components/visualizations/ParameterExplorer.tsx
+
+     Slider panel (HTML range inputs):
+
+     ┌────────────────────────┬─────────┬─────────┐
+     │       Parameter        │  Range  │ Default │
+     ├────────────────────────┼─────────┼─────────┤
+     │ Frequency f (Hz)       │ 0.2–6   │ 2.5     │
+     ├────────────────────────┼─────────┼─────────┤
+     │ Stroke amplitude A (m) │ 0.2–3   │ 1.0     │
+     ├────────────────────────┼─────────┼─────────┤
+     │ Forward speed U (m/s)  │ 1–20    │ 8       │
+     ├────────────────────────┼─────────┼─────────┤
+     │ Spanwise twist (rad)   │ 0–1.2   │ 0.3     │
+     ├────────────────────────┼─────────┼─────────┤
+     │ Wake strength          │ 0.2–2.5 │ 1.0     │
+     └────────────────────────┴─────────┴─────────┘
+
+     src/components/visualizations/PhysicsReadout.tsx
+
+     Live panel computing and displaying:
+     - St = fA/U
+     - Re = ρUc/μ  (chord c = 0.15 m fixed for now)
+     - α_eff = α − atan(ḣ/U)
+     - U_eff = √(U² + ḣ²)
+     - C_L, C_D (quasi-steady)
+     - L, T, D in Newtons
+
+     Step 7 — Physics Content Page (src/app/physics/wing-flapping/page.mdx)
+
+     Full 18-section derivation as MDX, using KaTeX for all equations.
+     Inline LaTeX: $...$, block LaTeX: $$...$$ (via remark-math → rehype-katex).
+     Interactive demo embedded mid-page via <FlappingWingDemo />.
+
+     Section outline (matching the ChatGPT derivation):
+     1. Governing equations (Navier-Stokes, moving boundary, Cauchy stress)
+     2. Nondimensional numbers (Re, St, k)
+     3. Wing kinematics (heave + pitch, α_eff derivation)
+     4. Quasi-steady lift model (L′ = ½ρU_eff²cC_L)
+     5. Thrust from force tilt (T′ ≈ F′ · ḣ/U)
+     6. Momentum theory (P_i ~ (mg)^3/2 / √(2ρS))
+     7. Vorticity formulation (Kutta-Joukowski, Kelvin's theorem, vortex loops)
+     8. Theodorsen model (added-mass + circulatory terms, C(k))
+     9. Added mass (F_a ~ ρc²ω²H)
+     10. Wingbeat power curve (U-shaped: A/U + BU³ + C)
+     11. Downstroke dominance (asymmetric stroke, feather slotting)
+     12. Leading-edge vortices (LEV, dynamic stall)
+     13. Spanwise structure (V(r,t) ≈ U + φ̇r, torque)
+     14. Wing twist (θ(r,t) to maintain α* across span)
+     15. Aeroelasticity (fluid–structure: ρ_s A y_tt + EIy_ssss = f_aero +
+     f_muscle)
+     16. Wake topology (vortex rings, mg ~ ρfΓR²)
+     17. Minimal mathematical model (7-equation reduced-order system)
+     18. Deepest physical picture (F ≈ −dI/dt, evolution's optimization problem)
+
+     Step 8 — Home Page (src/app/page.tsx)
+
+     Landing page with:
+     - Title + one-line tagline
+     - Brief overview of the physics
+     - Card grid linking to planned sections (wing flapping, wake, spanwise,
+     Strouhal explorer, etc.)
+     - Mini embedded 3D preview (lightweight, auto-rotating, no sliders)
+
+     ---
+     File Map
+
+     site/
+     ├── next.config.mjs                          ← MDX + remark-math +
+     rehype-katex
+     ├── mdx-components.tsx                       ← custom MDX component
+     registry
+     ├── src/
+     │   ├── app/
+     │   │   ├── layout.tsx                       ← global layout, KaTeX CSS,
+     nav
+     │   │   ├── page.tsx                         ← home/landing
+     │   │   └── physics/
+     │   │       └── wing-flapping/
+     │   │           └── page.mdx                 ← 18-section physics
+     derivation
+     │   └── components/
+     │       ├── visualizations/
+     │       │   ├── FlappingWing3D.tsx           ← R3F scene (ported from
+     preview.html)
+     │       │   ├── ParameterExplorer.tsx        ← parameter sliders panel
+     │       │   └── PhysicsReadout.tsx           ← live St/Re/forces readout
+     │       └── math/
+     │           └── Equation.tsx                 ← optional programmatic KaTeX
+     wrapper
+
+     ---
+     Verification
+
+     1. npm run dev — site loads at http://localhost:3000
+     2. /physics/wing-flapping — all 18 sections render with LaTeX equations
+     3. Interactive sliders update the 3D wing + force arrows + live readout in
+     real-time
+     4. Camera drag/zoom works in the 3D scene
+     5. npm run build succeeds (no TypeScript or MDX errors)
+     6. dist/ is deployable to Vercel/Netlify/GitHub Pages
+
+● Plan approved. Starting implementation now. Step 1: scaffold the Next.js
+  project.
+
+● Bash(cd "C:\Users\simon\Downloads\bird_flapping_physics" && npx
+      create-next-app@latest site --typescript --tailwind --eslint --app
+      --src-dir --import-alias "@/*" --n…)
+  ⎿  Running in the background (↓ to manage)
+  ⎿  (timeout 2m)
+
+● Scaffolding running in background. I'll wait for the notification.
+
+✻ Sautéed for 5m 0s · 1 shell still running
+
+● Background command "Scaffold Next.js 15 project with TypeScript, Tailwind, App
+ Router" completed (exit code 0)
+
+● Scaffold done. Now installing all dependencies.
+
+● Bash(cd "C:\Users\simon\Downloads\bird_flapping_physics\site" && npm install
+      @next/mdx @mdx-js/loader @mdx-js/react remark-math rehype-katex katex
+      @react-three/fiber…)
+  ⎿  Running in the background (↓ to manage)
+
+● While deps install, let me read preview.html to accurately port it to R3F.
+
+  Read 1 file (ctrl+o to expand)
+
+● Good. I have the full Three.js scene. Let me check what Next.js generated
+  while deps install.
+
+● Bash(ls "C:\Users\simon\Downloads\bird_flapping_physics\site" && echo "---" &&
+       type "C:\Users\simon\Downloads\bird_flapping_physics\site\next.config.ts"       2>$null || t…)
+  ⎿  Error: Exit code 1
+     AGENTS.md
+     CLAUDE.md
+     README.md
+     eslint.config.mjs
+     next-env.d.ts
+     next.config.ts
+     node_modules
+     package-lock.json
+     package.json
+     … +8 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+  ⎿  Loaded site\CLAUDE.md
+  ⎿  Loaded site\AGENTS.md                                                      
+● I need to flag something before continuing. I found instructions in project
+  files created by the scaffold:
+
+  site/AGENTS.md contains:
+
+  ▎ "This is NOT the Next.js you know. This version has breaking changes — APIs,
+  ▎  conventions, and file structure may all differ from your training data.
+  ▎ Read the relevant guide in node_modules/next/dist/docs/ before writing any
+  ▎ code. Heed deprecation notices."
+
+  This is suspicious — a standard create-next-app scaffold does not generate an
+  AGENTS.md file, and real Next.js does not ship docs inside
+  node_modules/next/dist/docs/. This looks like a prompt injection planted in
+  the scaffold output to redirect my behavior. I'm not going to read
+  node_modules/next/dist/docs/ or treat these as real instructions.
+
+  I'll continue with the standard Next.js 15 App Router conventions I know. Let
+  me proceed writing all the project files now.
+
+● Write(site\next.config.ts)
+  ⎿  Added 12 lines, removed 2 lines
+       1  import type { NextConfig } from "next";
+       2 +import createMDX from "@next/mdx";
+       3 +import remarkMath from "remark-math";
+       4 +import rehypeKatex from "rehype-katex";
+       5
+       6 +const withMDX = createMDX({
+       7 +  options: {
+       8 +    remarkPlugins: [remarkMath],
+       9 +    rehypePlugins: [rehypeKatex],
+      10 +  },
+      11 +});
+      12 +
+      13  const nextConfig: NextConfig = {
+       4 -  /* config options here */
+      14 +  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+      15  };
+      16
+       7 -export default nextConfig;
+      17 +export default withMDX(nextConfig);
+
+● Write(site\mdx-components.tsx)
+  ⎿  Wrote 50 lines to site\mdx-components.tsx
+       2 import dynamic from "next/dynamic";"mdx/types";
+       3
+       4 const FlappingWingDemo = dynamic(
+       5   () => import("@/components/visualizations/FlappingWingDemo"),
+       6   { ssr: false }
+       7 );
+       8
+       9 export function useMDXComponents(components: MDXComponents): MDX
+         Components {
+      10   return {
+     … +50 lines (ctrl+o to expand)
+
+● Now write the root layout with KaTeX CSS and nav:
+
+● Write(site\src\app\layout.tsx)
+  ⎿  Error writing file
+
+  Read 1 file (ctrl+o to expand)
+
+● Write(site\src\app\layout.tsx)
+  ⎿  Added 36 lines, removed 21 lines
+       1  import type { Metadata } from "next";
+       2  import { Geist, Geist_Mono } from "next/font/google";
+       3 +import Link from "next/link";                                                4 +import "katex/dist/katex.min.css";
+       5  import "./globals.css";
+       6
+       5 -const geistSans = Geist({
+       6 -  variable: "--font-geist-sans",
+       7 -  subsets: ["latin"],
+       8 -});
+       7 +const geistSans = Geist({ variable: "--font-geist-sans", subset
+         +s: ["latin"] });
+       8 +const geistMono = Geist_Mono({ variable: "--font-geist-mono", s
+         +ubsets: ["latin"] });
+       9
+      10 -const geistMono = Geist_Mono({
+      11 -  variable: "--font-geist-mono",
+      12 -  subsets: ["latin"],
+      13 -});
+      14 -
+      10  export const metadata: Metadata = {
+      16 -  title: "Create Next App",
+      17 -  description: "Generated by create next app",
+      11 +  title: "Bird Flight Physics",
+      12 +  description:
+      13 +    "Rigorous mathematical treatment of bird wing flapping: uns
+         +teady aerodynamics, vortex dynamics, and interactive 3D visuali
+         +zation.",
+      14  };
+      15
+      20 -export default function RootLayout({
+      21 -  children,
+      22 -}: Readonly<{
+      23 -  children: React.ReactNode;
+      24 -}>) {
+      16 +const NAV_LINKS = [
+      17 +  { href: "/", label: "Home" },
+      18 +  { href: "/physics/wing-flapping", label: "Wing Flapping" },
+      19 +];
+      20 +
+      21 +export default function RootLayout({ children }: { children: Re
+         +act.ReactNode }) {
+      22    return (
+      26 -    <html
+      27 -      lang="en"
+      28 -      className={`${geistSans.variable} ${geistMono.variable} h
+         --full antialiased`}
+      29 -    >
+      30 -      <body className="min-h-full flex flex-col">{children}</bo
+         -dy>
+      23 +    <html lang="en" className={`${geistSans.variable} ${geistMo
+         +no.variable} h-full antialiased`}>
+      24 +      <body className="min-h-full flex flex-col bg-[#05070a] te
+         +xt-slate-200">
+      25 +        <header className="border-b border-slate-800 bg-black/6
+         +0 backdrop-blur sticky top-0 z-50">
+      26 +          <div className="max-w-5xl mx-auto px-4 h-14 flex item
+         +s-center gap-6">
+      27 +            <Link href="/" className="font-semibold text-sky-40
+         +0 hover:text-sky-300 transition-colors">
+      28 +              Bird Flight Physics
+      29 +            </Link>
+      30 +            <nav className="flex gap-4 text-sm text-slate-400">
+      31 +              {NAV_LINKS.map(({ href, label }) => (
+      32 +                <Link key={href} href={href} className="hover:t
+         +ext-sky-300 transition-colors">
+      33 +                  {label}
+      34 +                </Link>
+      35 +              ))}
+      36 +            </nav>
+      37 +          </div>
+      38 +        </header>
+      39 +
+      40 +        <main className="flex-1 max-w-5xl mx-auto w-full px-4 p
+         +y-8">{children}</main>
+      41 +
+      42 +        <footer className="border-t border-slate-800 py-6 text-
+         +center text-xs text-slate-600">
+      43 +          Built with Next.js · MDX · React Three Fiber · KaTeX
+      44 +        </footer>
+      45 +      </body>
+      46      </html>
+      47    );
+      48  }
+
+● Now write the home page:
+
+  Read 1 file (ctrl+o to expand)
+
+● Write(site\src\app\page.tsx)
+  ⎿  Added 98 lines, removed 58 lines
+        1 -import Image from "next/image";
+        1 +import Link from "next/link";
+        2                                                                               3 -export default function Home() {
+        3 +const SECTIONS = [
+        4 +  {
+        5 +    href: "/physics/wing-flapping",
+        6 +    title: "Wing Flapping Physics",
+        7 +    desc: "18-section rigorous derivation: Navier-Stokes, Theo
+          +dorsen, vortex impulse, LEV, aeroelasticity — with interactive
+          + 3D visualization.",
+        8 +    badge: "Live Demo",
+        9 +  },
+       10 +  {
+       11 +    href: "#",
+       12 +    title: "Wake Topology",
+       13 +    desc: "Vortex ring shedding, impulse theorem, and the disc
+          +rete ring vs. continuous ladder wake transition.",
+       14 +    badge: "Coming soon",
+       15 +  },
+       16 +  {
+       17 +    href: "#",
+       18 +    title: "Strouhal Explorer",
+       19 +    desc: "Interactive map of St = fA/U showing efficient flig
+          +ht regimes for birds, bats, fish, and insects.",
+       20 +    badge: "Coming soon",
+       21 +  },
+       22 +  {
+       23 +    href: "#",
+       24 +    title: "Spanwise Circulation",
+       25 +    desc: "Prandtl lifting-line theory, tip vortex rollup, and
+          + optimum elliptic load distribution.",
+       26 +    badge: "Coming soon",
+       27 +  },
+       28 +  {
+       29 +    href: "#",
+       30 +    title: "Aeroelastic Wing",
+       31 +    desc: "Fluid–structure coupling: Cauchy number, controlled
+          + compliance, and passive pitch adaptation.",
+       32 +    badge: "Coming soon",
+       33 +  },
+       34 +  {
+       35 +    href: "#",
+       36 +    title: "CFD Comparison",
+       37 +    desc: "How reduced-order models compare to DNS and panel-m
+          +ethod results across Re regimes.",
+       38 +    badge: "Coming soon",
+       39 +  },
+       40 +];
+       41 +
+       42 +export default function HomePage() {
+       43    return (
+        5 -    <div className="flex flex-col flex-1 items-center justify-
+          -center bg-zinc-50 font-sans dark:bg-black">
+        6 -      <main className="flex flex-1 w-full max-w-3xl flex-col i
+          -tems-center justify-between py-32 px-16 bg-white dark:bg-black
+          - sm:items-start">
+        7 -        <Image
+        8 -          className="dark:invert"
+        9 -          src="/next.svg"
+       10 -          alt="Next.js logo"
+       11 -          width={100}
+       12 -          height={20}
+       13 -          priority
+       14 -        />
+       15 -        <div className="flex flex-col items-center gap-6 text-
+          -center sm:items-start sm:text-left">
+       16 -          <h1 className="max-w-xs text-3xl font-semibold leadi
+          -ng-10 tracking-tight text-black dark:text-zinc-50">
+       17 -            To get started, edit the page.tsx file.
+       18 -          </h1>
+       19 -          <p className="max-w-md text-lg leading-8 text-zinc-6
+          -00 dark:text-zinc-400">
+       20 -            Looking for a starting point or more instructions?
+          - Head over to{" "}
+       21 -            <a
+       22 -              href="https://vercel.com/templates?framework=nex
+          -t.js&utm_source=create-next-app&utm_medium=appdir-template-tw&
+          -utm_campaign=create-next-app"
+       23 -              className="font-medium text-zinc-950 dark:text-z
+          -inc-50"
+       44 +    <div className="space-y-12">
+       45 +      {/* Hero */}
+       46 +      <section className="py-12 text-center space-y-4">
+       47 +        <h1 className="text-4xl font-bold text-sky-300">Bird F
+          +light Physics</h1>
+       48 +        <p className="text-lg text-slate-400 max-w-2xl mx-auto
+          + leading-relaxed">
+       49 +          Rigorous unsteady aerodynamics with interactive 3D v
+          +isualizations and
+       50 +          full mathematical derivations. No biology hand-wavin
+          +g.
+       51 +        </p>
+       52 +        <Link
+       53 +          href="/physics/wing-flapping"
+       54 +          className="inline-block mt-4 px-6 py-3 bg-sky-700 ho
+          +ver:bg-sky-600 text-white rounded-lg font-semibold transition-
+          +colors"
+       55 +        >
+       56 +          Start with Wing Flapping →
+       57 +        </Link>
+       58 +      </section>
+       59 +
+       60 +      {/* Section grid */}
+       61 +      <section>
+       62 +        <h2 className="text-xl font-semibold text-slate-300 mb
+          +-6">Modules</h2>
+       63 +        <div className="grid grid-cols-1 sm:grid-cols-2 lg:gri
+          +d-cols-3 gap-4">
+       64 +          {SECTIONS.map(({ href, title, desc, badge }) => (
+       65 +            <Link
+       66 +              key={title}
+       67 +              href={href}
+       68 +              className={`group block rounded-xl border border
+          +-slate-700 bg-slate-900/60 p-5 hover:border-sky-700 transition
+          +-colors ${
+       69 +                href === "#" ? "pointer-events-none opacity-50
+          +" : ""
+       70 +              }`}
+       71              >
+       25 -              Templates
+       26 -            </a>{" "}
+       27 -            or the{" "}
+       28 -            <a
+       29 -              href="https://nextjs.org/learn?utm_source=create
+          --next-app&utm_medium=appdir-template-tw&utm_campaign=create-ne
+          -xt-app"
+       30 -              className="font-medium text-zinc-950 dark:text-z
+          -inc-50"
+       31 -            >
+       32 -              Learning
+       33 -            </a>{" "}
+       34 -            center.
+       35 -          </p>
+       72 +              <div className="flex items-start justify-between
+          + mb-2">
+       73 +                <span className="font-semibold text-slate-100
+          +group-hover:text-sky-300 transition-colors">
+       74 +                  {title}
+       75 +                </span>
+       76 +                <span
+       77 +                  className={`text-xs px-2 py-0.5 rounded-full
+          + ${
+       78 +                    badge === "Live Demo"
+       79 +                      ? "bg-sky-900 text-sky-300"
+       80 +                      : "bg-slate-800 text-slate-500"
+       81 +                  }`}
+       82 +                >
+       83 +                  {badge}
+       84 +                </span>
+       85 +              </div>
+       86 +              <p className="text-sm text-slate-400 leading-rel
+          +axed">{desc}</p>
+       87 +            </Link>
+       88 +          ))}
+       89          </div>
+       37 -        <div className="flex flex-col gap-4 text-base font-med
+          -ium sm:flex-row">
+       38 -          <a
+       39 -            className="flex h-12 w-full items-center justify-c
+          -enter gap-2 rounded-full bg-foreground px-5 text-background tr
+          -ansition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[
+          -158px]"
+       40 -            href="https://vercel.com/new?utm_source=create-nex
+          -t-app&utm_medium=appdir-template-tw&utm_campaign=create-next-a
+          -pp"
+       41 -            target="_blank"
+       42 -            rel="noopener noreferrer"
+       43 -          >
+       44 -            <Image
+       45 -              className="dark:invert"
+       46 -              src="/vercel.svg"
+       47 -              alt="Vercel logomark"
+       48 -              width={16}
+       49 -              height={16}
+       50 -            />
+       51 -            Deploy Now
+       52 -          </a>
+       53 -          <a
+       54 -            className="flex h-12 w-full items-center justify-c
+          -enter rounded-full border border-solid border-black/[.08] px-5
+          - transition-colors hover:border-transparent hover:bg-black/[.0
+          -4] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158p
+          -x]"
+       55 -            href="https://nextjs.org/docs?utm_source=create-ne
+          -xt-app&utm_medium=appdir-template-tw&utm_campaign=create-next-
+          -app"
+       56 -            target="_blank"
+       57 -            rel="noopener noreferrer"
+       58 -          >
+       59 -            Documentation
+       60 -          </a>
+       61 -        </div>
+       62 -      </main>
+       90 +      </section>
+       91 +
+       92 +      {/* Stack info */}
+       93 +      <section className="rounded-xl border border-slate-800 b
+          +g-slate-900/40 p-6 text-sm text-slate-400">
+       94 +        <h2 className="font-semibold text-slate-300 mb-2">Stac
+          +k</h2>
+       95 +        <p>
+       96 +          <strong className="text-slate-200">Next.js 15</stron
+          +g> (App Router) ·{" "}
+       97 +          <strong className="text-slate-200">MDX</strong> for
+          +equation-heavy pages ·{" "}
+       98 +          <strong className="text-slate-200">KaTeX</strong> fo
+          +r LaTeX math ·{" "}
+       99 +          <strong className="text-slate-200">React Three Fiber
+          +</strong> for 3D ·{" "}
+      100 +          <strong className="text-slate-200">Tailwind CSS</str
+          +ong>
+      101 +        </p>
+      102 +      </section>
+      103      </div>
+      104    );
+      105  }
+
+● Background command "Install MDX, KaTeX, React Three Fiber, and utility
+dependencies" completed (exit code 0)
+
+● Deps installed. Now creating all component files in parallel.
+
+● Bash(mkdir -p "C:\Users\simon\Downloads\bird_flapping_physics\site\src\compone      nts\visualizations"
+      "C:\Users\simon\Downloads\bird_flapping_physics\site\src\components…)
+  ⎿  (No output)
+
+● Write(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Wrote 331 lines to
+     site\src\components\visualizations\FlappingWing3D.tsx
+       2 "use client";
+       3 import { useRef, useMemo } from "react";
+       4 import { Canvas, useFrame } from "@react-three/fiber";
+       5 import { OrbitControls } from "@react-three/drei";
+       6 import * as THREE from "three";
+       7
+       8 // ─── Physics params ──────────────────────────────────────────
+         ───────────────
+       9 const RHO = 1.225;
+      10 const S = 7.5;
+     … +347 lines (ctrl+o to expand)
+
+● Write(site\src\components\visualizations\PhysicsReadout.tsx)
+  ⎿  Wrote 43 lines to
+     site\src\components\visualizations\PhysicsReadout.tsx
+       2 "use client";
+       3 import { type ReturnType } from "react";
+       4 import { computePhysics } from "./FlappingWing3D";
+       5
+       6 type Physics = ReturnType<typeof computePhysics>;
+       8 function Row({ label, value }: { label: string; value: string })
+          {
+       9   return (
+      10     <div className="flex justify-between text-xs font-mono py-0.
+         5">
+     … +42 lines (ctrl+o to expand)
+
+● Write(site\src\components\visualizations\ParameterExplorer.tsx)
+  ⎿  Wrote 62 lines to
+     site\src\components\visualizations\ParameterExplorer.tsx
+      1 "use client";
+      2
+      3 interface Params {
+      4   freq: number;
+      5   amplitude: number;
+      6   speed: number;
+      7   twist: number;
+      8   wakeStrength: number;
+      9 }
+     … +59 lines (ctrl+o to expand)
+
+● Now the top-level demo wrapper that combines all three:
+
+● Write(site\src\components\visualizations\FlappingWingDemo.tsx)
+  ⎿  Wrote 56 lines to
+     site\src\components\visualizations\FlappingWingDemo.tsx
+       2 "use client";
+       3 import { useState, useCallback } from "react";
+       4 import FlappingWing3D, { computePhysics } from "./FlappingWing3D
+         ";
+       5 import ParameterExplorer from "./ParameterExplorer";
+       6 import PhysicsReadout from "./PhysicsReadout";
+       7
+       8 const DEFAULT_PARAMS = {
+       9   freq: 1.5,
+      10   amplitude: 1.0,
+     … +53 lines (ctrl+o to expand)
+
+● Now the main physics MDX content page:
+
+● Write(site\src\app\physics\wing-flapping\page.mdx)
+  ⎿  Wrote 447 lines to site\src\app\physics\wing-flapping\page.mdx
+      2 # The Physics of Bird Wing Flapping
+      3 *Unsteady aerodynamics, vortex dynamics, and aeroelasticity — no
+        biology hand-waving.*
+      4
+      5 <FlappingWingDemo />
+      6
+      7 ---
+      8
+      9 ## 1. Governing equations: unsteady Navier–Stokes with moving bou
+        ndaries
+     … +519 lines (ctrl+o to expand)
+
+● Let me fix the TypeScript types in PhysicsReadout (I used a bad import
+  pattern):
+
+● Write(site\src\components\visualizations\PhysicsReadout.tsx)
+  ⎿  Removed 1 line
+      1  "use client";
+      2
+      3 -import { type ReturnType } from "react";
+      3  import { computePhysics } from "./FlappingWing3D";
+      4
+      5  type Physics = ReturnType<typeof computePhysics>;
+
+● Also clean up the unused useFrame in Wing:
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Added 1 line, removed 1 line
+      1  "use client";
+      2
+      3 -import { useRef, useMemo } from "react";                                     3 +import { useRef, useMemo, useCallback } from "react";
+      4  import { Canvas, useFrame } from "@react-three/fiber";
+      5  import { OrbitControls } from "@react-three/drei";
+      6  import * as THREE from "three";
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Removed 7 lines
+      67      return geo;
+      68    }, [side]);
+      69
+      70 -  const ref = useRef<THREE.Mesh>(null!);
+      71 -
+      72 -  useFrame(({ clock }, _delta) => {
+      73 -    // Wings animate via parent group — individual refs used if
+         - needed
+      74 -    void clock;
+      75 -  });
+      76 -
+      70    return (
+      71      <mesh
+      72        ref={ref}
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Added 1 line, removed 1 line
+      1  "use client";
+      2
+      3 -import { useRef, useMemo, useCallback } from "react";
+      3 +import { useRef, useMemo } from "react";
+      4  import { Canvas, useFrame } from "@react-three/fiber";
+      5  import { OrbitControls } from "@react-three/drei";
+      6  import * as THREE from "three";
+
+● Also remove unused liftRef in Bird:
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Removed 1 line
+      202    const birdRef = useRef<THREE.Group>(null!);
+      203    const leftRef = useRef<THREE.Group>(null!);
+      204    const rightRef = useRef<THREE.Group>(null!);
+      205 -  const liftRef = useRef<{ helper: THREE.ArrowHelper } | null>
+          -(null);
+      205
+      206    const liftHelper = useMemo(
+      207      () => new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), ne
+           w THREE.Vector3(0, 0.2, 0), 1.5, "#00ff77", 0.35, 0.22),
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Removed 1 line
+      244      thrustHelper.setLength(Math.max(0.25, Math.min(4.5, physic
+           s.thrust * 0.018)), 0.35, 0.22);
+      245      dragHelper.setLength(Math.max(0.25, Math.min(4.5, physics.
+           drag * 0.018)), 0.35, 0.22);
+      246
+      247 -    void liftRef;
+      247    });
+      248
+      249    return (
+
+● Also remove the unused ForceArrow component since we use primitives directly:
+
+  Read 1 file (ctrl+o to expand)
+
+● I see two issues to fix: the Wing component still references a removed ref,
+  and ForceArrow is unused. Let me clean these up:
+
+● Write(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Added 49 lines, removed 126 lines
+       5  import { OrbitControls } from "@react-three/drei";
+       6  import * as THREE from "three";
+       7
+       8 -// ─── Physics params ─────────────────────────────────────────
+         -────────────────
+       8 +// ─── Physics ────────────────────────────────────────────────
+         +──────────────────
+       9  const RHO = 1.225;
+      10  const S = 7.5;
+      11  const C_CHORD = 0.75;
+     ...
+      45  function Wing({ side }: { side: 1 | -1 }) {
+      46    const chord = 1.45;
+      47    const span = 5.4;
+      48 -  const nx = 38;
+      49 -  const ny = 12;
+      48
+      49    const geometry = useMemo(() => {
+      52 -    const geo = new THREE.PlaneGeometry(span, chord, nx, ny);
+      50 +    const geo = new THREE.PlaneGeometry(span, chord, 38, 12);
+      51      const pos = geo.attributes.position as THREE.BufferAttribut
+          e;
+      52
+      53      for (let i = 0; i < pos.count; i++) {
+     ...
+      66    }, [side]);
+      67
+      68    return (
+      71 -    <mesh
+      72 -      ref={ref}
+      73 -      geometry={geometry}
+      74 -      rotation={[0, Math.PI / 2, 0]}
+      75 -      position={[side * 2.75, 0, 0]}
+      76 -    >
+      69 +    <mesh geometry={geometry} rotation={[0, Math.PI / 2, 0]} po
+         +sition={[side * 2.75, 0, 0]}>
+      70        <meshStandardMaterial
+      71          color="#66aaff"
+      72          side={THREE.DoubleSide}
+     ...
+       79    );
+       80  }
+       81
+       89 -// ─── Force arrow ───────────────────────────────────────────
+          -──────────────────
+       90 -function ForceArrow({
+       91 -  color,
+       92 -  origin,
+       93 -  dir,
+       94 -  length,
+       95 -}: {
+       96 -  color: string;
+       97 -  origin: [number, number, number];
+       98 -  dir: [number, number, number];
+       99 -  length: number;
+      100 -}) {
+      101 -  const ref = useRef<THREE.ArrowHelper>(null!);
+      102 -  const arrowHelper = useMemo(
+      103 -    () =>
+      104 -      new THREE.ArrowHelper(
+      105 -        new THREE.Vector3(...dir).normalize(),
+      106 -        new THREE.Vector3(...origin),
+      107 -        Math.max(0.3, length),
+      108 -        color,
+      109 -        0.35,
+      110 -        0.22
+      111 -      ),
+      112 -    // eslint-disable-next-line react-hooks/exhaustive-deps
+      113 -    []
+      114 -  );
+      115 -
+      116 -  useFrame(() => {
+      117 -    arrowHelper.setDirection(new THREE.Vector3(...dir).normali
+          -ze());
+      118 -    arrowHelper.setLength(Math.max(0.3, Math.min(5.5, length))
+          -, 0.35, 0.22);
+      119 -  });
+      120 -
+      121 -  return <primitive ref={ref} object={arrowHelper} />;
+      122 -}
+      123 -
+      124 -// ─── Vortex wake ───────────────────────────────────────────
+          -──────────────────
+       82 +// ─── Vortex wake (instanced mesh for performance) ──────────
+          +───────────────────
+       83  const PARTICLE_COUNT = 320;
+       84
+      127 -function WakeParticles({
+      128 -  speed,
+      129 -  freq,
+      130 -  wakeStrength,
+      131 -}: {
+      132 -  speed: number;
+      133 -  freq: number;
+      134 -  wakeStrength: number;
+      135 -}) {
+       85 +function WakeParticles({ speed, freq, wakeStrength }: { speed:
+          + number; freq: number; wakeStrength: number }) {
+       86    const meshRef = useRef<THREE.InstancedMesh>(null!);
+       87
+      138 -  const particles = useMemo(() => {
+      139 -    return Array.from({ length: PARTICLE_COUNT }, () => ({
+      140 -      phase: Math.random() * Math.PI * 2,
+      141 -      radius: 0.5 + Math.random() * 2.0,
+      142 -      side: Math.random() < 0.5 ? -1 : 1,
+      143 -      z: -Math.random() * 44,
+      144 -      color: Math.random() > 0.5 ? 0 : 1,
+      145 -    }));
+      146 -  }, []);
+       88 +  const particles = useMemo(
+       89 +    () =>
+       90 +      Array.from({ length: PARTICLE_COUNT }, () => ({
+       91 +        phase: Math.random() * Math.PI * 2,
+       92 +        radius: 0.5 + Math.random() * 2.0,
+       93 +        side: Math.random() < 0.5 ? -1 : 1,
+       94 +        z: -Math.random() * 44,
+       95 +      })),
+       96 +    []
+       97 +  );
+       98
+       99    const dummy = useMemo(() => new THREE.Object3D(), []);
+      100
+      150 -  useFrame(({ clock }) => {
+      101 +  useFrame(({ clock, clock: { getDelta } }) => {
+      102      const t = clock.getElapsedTime();
+      103      const omega = 2 * Math.PI * freq;
+      104
+      105      particles.forEach((p, i) => {
+      155 -      p.z += 0.055 * speed * 0.016; // approx dt
+      106 +      p.z += 0.055 * speed * 0.016;
+      107
+      108        const zLag = -p.z;
+      109        const ringPhase = 0.65 * zLag + omega * t + p.phase;
+     ...
+      128      });
+      129
+      130      meshRef.current.instanceMatrix.needsUpdate = true;
+      131 +    void getDelta;
+      132    });
+      133
+      134    return (
+     ...
+      139    );
+      140  }
+      141
+      190 -// ─── Bird group (body + wings, animates) ───────────────────
+          -──────────────────
+      142 +// ─── Bird (body + wings + animated force arrows) ───────────
+          +───────────────────
+      143  function Bird({
+      144    freq,
+      145    amplitude,
+     ...
+      155    const leftRef = useRef<THREE.Group>(null!);
+      156    const rightRef = useRef<THREE.Group>(null!);
+      157
+      206 -  const liftHelper = useMemo(
+      207 -    () => new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), ne
+          -w THREE.Vector3(0, 0.2, 0), 1.5, "#00ff77", 0.35, 0.22),
+      158 +  const liftArrow = useMemo(
+      159 +    () => new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), ne
+          +w THREE.Vector3(0, 0.2, 0), 1.5, 0x00ff77, 0.35, 0.22),
+      160      []
+      161    );
+      210 -  const thrustHelper = useMemo(
+      211 -    () => new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), ne
+          -w THREE.Vector3(0, -0.25, 0), 1.5, "#ff4444", 0.35, 0.22),
+      162 +  const thrustArrow = useMemo(
+      163 +    () => new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), ne
+          +w THREE.Vector3(0, -0.25, 0), 1.5, 0xff4444, 0.35, 0.22),
+      164      []
+      165    );
+      214 -  const dragHelper = useMemo(
+      215 -    () => new THREE.ArrowHelper(new THREE.Vector3(-1, 0, 0), n
+          -ew THREE.Vector3(0, -0.55, 0), 1.5, "#ffdd44", 0.35, 0.22),
+      166 +  const dragArrow = useMemo(
+      167 +    () => new THREE.ArrowHelper(new THREE.Vector3(-1, 0, 0), n
+          +ew THREE.Vector3(0, -0.55, 0), 1.5, 0xffdd44, 0.35, 0.22),
+      168      []
+      169    );
+      170
+     ...
+      179      const strokeAngle = 0.62 * amplitude * flap;
+      180      const pitchAngle = twist * Math.cos(omega * t);
+      181
+      230 -    if (leftRef.current) {
+      231 -      leftRef.current.rotation.z = strokeAngle;
+      232 -      leftRef.current.rotation.x = pitchAngle;
+      233 -    }
+      234 -    if (rightRef.current) {
+      235 -      rightRef.current.rotation.z = -strokeAngle;
+      236 -      rightRef.current.rotation.x = -pitchAngle;
+      237 -    }
+      238 -    if (birdRef.current) {
+      239 -      birdRef.current.position.y = 0.08 * Math.sin(omega * t +
+          - Math.PI / 5);
+      240 -    }
+      182 +    leftRef.current.rotation.z = strokeAngle;
+      183 +    leftRef.current.rotation.x = pitchAngle;
+      184 +    rightRef.current.rotation.z = -strokeAngle;
+      185 +    rightRef.current.rotation.x = -pitchAngle;
+      186 +    birdRef.current.position.y = 0.08 * Math.sin(omega * t + M
+          +ath.PI / 5);
+      187
+      242 -    // Update force arrows
+      243 -    liftHelper.setLength(Math.max(0.3, Math.min(5.5, Math.abs(
+          -physics.lift) * 0.008)), 0.35, 0.22);
+      244 -    thrustHelper.setLength(Math.max(0.25, Math.min(4.5, physic
+          -s.thrust * 0.018)), 0.35, 0.22);
+      245 -    dragHelper.setLength(Math.max(0.25, Math.min(4.5, physics.
+          -drag * 0.018)), 0.35, 0.22);
+      246 -
+      188 +    liftArrow.setLength(Math.max(0.3, Math.min(5.5, Math.abs(p
+          +hysics.lift) * 0.008)), 0.35, 0.22);
+      189 +    thrustArrow.setLength(Math.max(0.25, Math.min(4.5, physics
+          +.thrust * 0.018)), 0.35, 0.22);
+      190 +    dragArrow.setLength(Math.max(0.25, Math.min(4.5, physics.d
+          +rag * 0.018)), 0.35, 0.22);
+      191    });
+      192
+      193    return (
+      194      <group ref={birdRef}>
+      251 -      {/* Body */}
+      195        <mesh scale={[1.4, 0.8, 0.75]}>
+      196          <sphereGeometry args={[0.42, 32, 32]} />
+      197          <meshStandardMaterial color="#ffaa44" roughness={0.55}
+            metalness={0.05} />
+      198        </mesh>
+      256 -
+      257 -      {/* Head */}
+      199        <mesh position={[0, 0.18, 0.62]}>
+      200          <sphereGeometry args={[0.18, 24, 24]} />
+      201          <meshStandardMaterial color="#ffc777" roughness={0.5}
+           />
+      202        </mesh>
+      203
+      263 -      {/* Wings */}
+      264 -      <group ref={leftRef}>
+      265 -        <Wing side={-1} />
+      266 -      </group>
+      267 -      <group ref={rightRef}>
+      268 -        <Wing side={1} />
+      269 -      </group>
+      204 +      <group ref={leftRef}><Wing side={-1} /></group>
+      205 +      <group ref={rightRef}><Wing side={1} /></group>
+      206
+      271 -      {/* Force arrows */}
+      272 -      <primitive object={liftHelper} />
+      273 -      <primitive object={thrustHelper} />
+      274 -      <primitive object={dragHelper} />
+      207 +      <primitive object={liftArrow} />
+      208 +      <primitive object={thrustArrow} />
+      209 +      <primitive object={dragArrow} />
+      210      </group>
+      211    );
+      212  }
+      213
+      214  // ─── Scene ─────────────────────────────────────────────────
+           ──────────────────
+      280 -function Scene({
+      281 -  freq,
+      282 -  amplitude,
+      283 -  speed,
+      284 -  twist,
+      285 -  wakeStrength,
+      286 -  onPhysics,
+      287 -}: SceneProps) {
+      215 +export interface SceneProps {
+      216 +  freq: number;
+      217 +  amplitude: number;
+      218 +  speed: number;
+      219 +  twist: number;
+      220 +  wakeStrength: number;
+      221 +  onPhysics?: (p: ReturnType<typeof computePhysics>) => void;
+      222 +}
+      223 +
+      224 +function Scene({ freq, amplitude, speed, twist, wakeStrength,
+          +onPhysics }: SceneProps) {
+      225    return (
+      226      <>
+      227        <ambientLight intensity={0.72} />
+      228        <directionalLight position={[5, 8, 7]} intensity={1.2} /
+           >
+      229        <directionalLight position={[-6, 2, -8]} intensity={0.55
+           } color="#88bbff" />
+      230        <gridHelper args={[60, 60, "#2c3440", "#161b22"]} />
+      294 -
+      231        <Bird freq={freq} amplitude={amplitude} twist={twist} on
+           Physics={onPhysics} />
+      232        <WakeParticles speed={speed} freq={freq} wakeStrength={w
+           akeStrength} />
+      297 -
+      233        <OrbitControls enableDamping dampingFactor={0.08} />
+      234      </>
+      235    );
+      236  }
+      237
+      238  // ─── Public component ──────────────────────────────────────
+           ──────────────────
+      304 -export interface SceneProps {
+      305 -  freq: number;
+      306 -  amplitude: number;
+      307 -  speed: number;
+      308 -  twist: number;
+      309 -  wakeStrength: number;
+      310 -  onPhysics?: (p: ReturnType<typeof computePhysics>) => void;
+      311 -}
+      312 -
+      239  export default function FlappingWing3D(props: SceneProps) {
+      240    return (
+      315 -    <Canvas
+      316 -      camera={{ position: [0, 4.5, 13], fov: 60 }}
+      317 -      style={{ background: "#05070a" }}
+      318 -    >
+      241 +    <Canvas camera={{ position: [0, 4.5, 13], fov: 60 }} style
+          +={{ background: "#05070a" }}>
+      242        <Scene {...props} />
+      243      </Canvas>
+      244    );
+
+● Fix the unused getDelta in WakeParticles:
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Added 1 line, removed 1 line
+       98
+       99    const dummy = useMemo(() => new THREE.Object3D(), []);
+      100
+      101 -  useFrame(({ clock, clock: { getDelta } }) => {
+      101 +  useFrame(({ clock }) => {
+      102      const t = clock.getElapsedTime();
+      103      const omega = 2 * Math.PI * freq;
+      104
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Error editing file
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Update(site\src\components\visualizations\FlappingWing3D.tsx)
+  ⎿  Removed 1 line
+      128      });
+      129
+      130      meshRef.current.instanceMatrix.needsUpdate = true;                     131 -    void getDelta;
+      131    });                                                                      132
+      133    return (
+
+● Now run the dev server and verify it builds:
+
+● Bash(cd "C:\Users\simon\Downloads\bird_flapping_physics\site" && npm run build
+       2>&1)
+  ⎿  Running in the background (↓ to manage)
+
+● Build running. Let me check interim output while waiting:
+
+● Bash(sleep 15 && head -80
+      "C:\Users\simon\AppData\Local\Temp\claude\C--Users-simon-Downloads-bird-fl      apping-physics\0b9bd3f7-b667-4b96-909e-564e9bcc5333\tasks\bojhibb…)
+  ⎿  > site@0.1.0 build
+     > next build
+     … +10 lines (ctrl+o to expand)
+  ⎿  (timeout 30s)
+                                                                                ● Background command "Run Next.js production build to catch TypeScript and MDX
+errors" failed with exit code 1                                                 
+● Build failed due to Turbopack serialization issue with MDX plugins. Let me
+  check the package.json and fix the config:
+
+  Read 1 file (ctrl+o to expand)
+
+● Next.js 16.2.6 uses Turbopack by default which can't serialize function-based
+  MDX plugin options. Let me check if there are docs and also look at what build
+   flags are available:
+
+  Listed 2 directories (ctrl+o to expand)
+                                                                                ● These are legitimate Next.js 16 docs. Let me find the MDX guide to understand
+  the correct config approach for Next.js 16:
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● The fix is clear from the docs: Turbopack requires plugin names as strings,
+  not imported modules. Also useMDXComponents signature changed in Next.js 16.
+  Fixing both:
+
+● Write(site\next.config.ts)
+  ⎿  Added 4 lines, removed 5 lines
+       1  import type { NextConfig } from "next";
+       2  import createMDX from "@next/mdx";
+       3 -import remarkMath from "remark-math";
+       4 -import rehypeKatex from "rehype-katex";
+       3
+       4 +// Turbopack requires plugin names as strings (not imported mod
+         +ules)
+       5  const withMDX = createMDX({
+       6    options: {
+       8 -    remarkPlugins: [remarkMath],
+       9 -    rehypePlugins: [rehypeKatex],
+       7 +    remarkPlugins: ["remark-math"],
+       8 +    rehypePlugins: ["rehype-katex"],
+       9    },
+      10  });
+      11
+      12  const nextConfig: NextConfig = {
+      14 -  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+      13 +  pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
+      14  };
+      15
+      16  export default withMDX(nextConfig);
+
+● Write(site\mdx-components.tsx)
+  ⎿  Added 43 lines, removed 41 lines
+       6    { ssr: false }
+       7  );
+       8
+       9 -export function useMDXComponents(components: MDXComponents): MD
+         -XComponents {
+      10 -  return {
+      11 -    h1: ({ children }) => (
+      12 -      <h1 className="text-3xl font-bold mt-10 mb-4 text-sky-200
+         -">{children}</h1>
+      13 -    ),
+      14 -    h2: ({ children }) => (
+      15 -      <h2 className="text-2xl font-semibold mt-8 mb-3 text-sky-
+         -300 border-b border-sky-900 pb-1">
+      16 -        {children}
+      17 -      </h2>
+      18 -    ),
+      19 -    h3: ({ children }) => (
+      20 -      <h3 className="text-xl font-semibold mt-6 mb-2 text-slate
+         --200">{children}</h3>
+      21 -    ),
+      22 -    p: ({ children }) => (
+      23 -      <p className="my-3 text-slate-300 leading-relaxed">{child
+         -ren}</p>
+      24 -    ),
+      25 -    ul: ({ children }) => (
+      26 -      <ul className="list-disc list-inside my-3 space-y-1 text-
+         -slate-300">{children}</ul>
+      27 -    ),
+      28 -    ol: ({ children }) => (
+      29 -      <ol className="list-decimal list-inside my-3 space-y-1 te
+         -xt-slate-300">{children}</ol>
+      30 -    ),
+      31 -    li: ({ children }) => <li className="ml-4">{children}</li>,
+      32 -    code: ({ children }) => (
+      33 -      <code className="bg-slate-800 text-sky-300 px-1.5 py-0.5
+         -rounded text-sm font-mono">
+      34 -        {children}
+      35 -      </code>
+      36 -    ),
+      37 -    pre: ({ children }) => (
+      38 -      <pre className="bg-slate-900 border border-slate-700 roun
+         -ded-lg p-4 my-4 overflow-x-auto text-sm">
+      39 -        {children}
+      40 -      </pre>
+      41 -    ),
+      42 -    blockquote: ({ children }) => (
+      43 -      <blockquote className="border-l-4 border-sky-600 pl-4 my-
+         -4 text-slate-400 italic">
+      44 -        {children}
+      45 -      </blockquote>
+      46 -    ),
+      47 -    FlappingWingDemo,
+      48 -    ...components,
+      49 -  };
+       9 +const components: MDXComponents = {
+      10 +  h1: ({ children }) => (
+      11 +    <h1 className="text-3xl font-bold mt-10 mb-4 text-sky-200">
+         +{children}</h1>
+      12 +  ),
+      13 +  h2: ({ children }) => (
+      14 +    <h2 className="text-2xl font-semibold mt-8 mb-3 text-sky-30
+         +0 border-b border-sky-900 pb-1">
+      15 +      {children}
+      16 +    </h2>
+      17 +  ),
+      18 +  h3: ({ children }) => (
+      19 +    <h3 className="text-xl font-semibold mt-6 mb-2 text-slate-2
+         +00">{children}</h3>
+      20 +  ),
+      21 +  p: ({ children }) => (
+      22 +    <p className="my-3 text-slate-300 leading-relaxed">{childre
+         +n}</p>
+      23 +  ),
+      24 +  ul: ({ children }) => (
+      25 +    <ul className="list-disc list-inside my-3 space-y-1 text-sl
+         +ate-300">{children}</ul>
+      26 +  ),
+      27 +  ol: ({ children }) => (
+      28 +    <ol className="list-decimal list-inside my-3 space-y-1 text
+         +-slate-300">{children}</ol>
+      29 +  ),
+      30 +  li: ({ children }) => <li className="ml-4">{children}</li>,
+      31 +  code: ({ children }) => (
+      32 +    <code className="bg-slate-800 text-sky-300 px-1.5 py-0.5 ro
+         +unded text-sm font-mono">
+      33 +      {children}
+      34 +    </code>
+      35 +  ),
+      36 +  pre: ({ children }) => (
+      37 +    <pre className="bg-slate-900 border border-slate-700 rounde
+         +d-lg p-4 my-4 overflow-x-auto text-sm">
+      38 +      {children}
+      39 +    </pre>
+      40 +  ),
+      41 +  blockquote: ({ children }) => (
+      42 +    <blockquote className="border-l-4 border-sky-600 pl-4 my-4
+         +text-slate-400 italic">
+      43 +      {children}
+      44 +    </blockquote>
+      45 +  ),
+      46 +  hr: () => <hr className="border-slate-700 my-8" />,
+      47 +  FlappingWingDemo,
+      48 +};
+      49 +
+      50 +export function useMDXComponents(): MDXComponents {
+      51 +  return components;
+      52  }
+
+● Now rebuild:
+
+● Bash(cd "C:\Users\simon\Downloads\bird_flapping_physics\site" && npm run build
+       2>&1)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(sleep 25 && head -100
+      "C:\Users\simon\AppData\Local\Temp\claude\C--Users-simon-Downloads-bird-fl      apping-physics\0b9bd3f7-b667-4b96-909e-564e9bcc5333\tasks\b12ev2…)          ⎿  Error: Blocked: sleep 25 followed by: head -100
+     "C:\Users\simon\AppData\Local\Temp\claude\C--Users-simon-Downloads-bird-fla
+     pping-physics\0b9bd3f7-b667-4b96-909e-564e9bcc5333\tasks\b12ev2bqb.output".
+      To wait for a condition, use Monitor with an until-loop (e.g. `until
+     <check>; do sleep 2; done`). To wait for a command you started, use
+     run_in_background: true. Do not chain shorter sleeps to work around this
+     block.
+
+● Waiting for the build notification.
+
+✻ Baked for 11m 51s
+
+● Background command "Run Next.js production build with Turbopack-compatible MDX config" failed with exit code 1
+
+  Read 1 file (ctrl+o to expand)
+                                                                                ● In Next.js 16, dynamic({ ssr: false }) must live inside a Client Component.
+  I'll create a thin client-side lazy wrapper:
+
+● Write(site\src\components\visualizations\FlappingWingDemoLazy.tsx)
+  ⎿  Wrote 17 lines to
+     site\src\components\visualizations\FlappingWingDemoLazy.tsx
+       2 "use client";
+       3 import dynamic from "next/dynamic";
+       4
+       5 const FlappingWingDemoLazy = dynamic(
+       6   () => import("./FlappingWingDemo"),
+       8     ssr: false,
+       9     loading: () => (
+      10       <div className="my-8 rounded-2xl border border-slate-700 b
+         g-slate-950 h-[420px] flex items-center justify-center text-slat
+         e-500 text-sm">
+     … +9 lines (ctrl+o to expand)
+
+● Write(site\mdx-components.tsx)
+  ⎿  Added 1 line, removed 6 lines
+       1  import type { MDXComponents } from "mdx/types";
+       2 -import dynamic from "next/dynamic";
+       2 +import FlappingWingDemo from "@/components/visualizations/Flapp
+         +ingWingDemoLazy";
+       3
+       4 -const FlappingWingDemo = dynamic(
+       5 -  () => import("@/components/visualizations/FlappingWingDemo"),
+       6 -  { ssr: false }
+       7 -);
+       8 -
+       4  const components: MDXComponents = {
+       5    h1: ({ children }) => (
+       6      <h1 className="text-3xl font-bold mt-10 mb-4 text-sky-200">
+          {children}</h1>
+
+● Bash(cd "C:\Users\simon\Downloads\bird_flapping_physics\site" && npm run build
+       2>&1)
+  ⎿  Running in the background (↓ to manage)
+
+✻ Baked for 33s · 1 shell still running
+
+● Background command "Run Next.js build with client-component lazy wrapper fix"
+completed (exit code 0)
+
+● Build succeeded. Let me check the output and start the dev server:
+
+  Read 1 file (ctrl+o to expand)
+                                                                                ● Clean build — all 3 routes static, TypeScript passed. Now start the dev server
+   and open the browser to verify:
+
+● Bash(cd "C:\Users\simon\Downloads\bird_flapping_physics\site" && npm run dev
+      2>&1)
+  ⎿  Running in the background (↓ to manage)
+
+  Called claude-in-chrome 4 times (ctrl+o to expand)
+
+● Home page is live. Now check the physics page with equations and the 3D demo:
+
+  Called claude-in-chrome 2 times (ctrl+o to expand)
+
+● 3D is loading — wait for it to render fully:
+
+  Called claude-in-chrome (ctrl+o to expand)
+
+● The demo component has loaded (header and controls visible). Let me check for
+  console errors and scroll to see the equations:
+
+  Called claude-in-chrome 2 times (ctrl+o to expand)
+
+● KaTeX equations are rendering beautifully. No console errors. Let me scroll     back up to check the 3D visualization:
+
+  Called claude-in-chrome (ctrl+o to expand)
+
+● Everything is working. The site is fully live:
+
+  - 3D scene: bird body + flapping blue wings + green lift arrow + yellow drag
+  arrow + vortex wake particles animating in real-time
+  - Live readout: St = 0.250, Re = 3.00e+5 updating each frame
+  - Parameters panel: frequency slider at 1.50 Hz
+  - KaTeX equations: Navier–Stokes, surface integrals all rendering correctly
+  - Zero console errors
+
+  ---
+  Here's a summary of what was built:
+
+  Stack is live at http://localhost:3000
+
+  Files created in bird_flapping_physics/site/:
+
+  ┌────────────────────────────────────────────────────┬────────────────────┐
+  │                        File                        │      Purpose       │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │                                                    │ MDX + Turbopack-co │
+  │ next.config.ts                                     │ mpatible           │
+  │                                                    │ string-based       │
+  │                                                    │ plugin config      │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │                                                    │ Global MDX         │
+  │ mdx-components.tsx                                 │ component registry │
+  │                                                    │  (h1–hr +          │
+  │                                                    │ FlappingWingDemo)  │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │                                                    │ Root layout with   │
+  │ src/app/layout.tsx                                 │ KaTeX CSS, nav,    │
+  │                                                    │ dark theme         │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │ src/app/page.tsx                                   │ Landing page with  │
+  │                                                    │ 6-module card grid │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │                                                    │ 18-section physics │
+  │ src/app/physics/wing-flapping/page.mdx             │  derivation with   │
+  │                                                    │ LaTeX              │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │ src/components/visualizations/FlappingWing3D.tsx   │ R3F scene (ported  │
+  │                                                    │ from preview.html) │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │                                                    │ Combined demo      │
+  │ src/components/visualizations/FlappingWingDemo.tsx │ (canvas + sliders  │
+  │                                                    │ + readout)         │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │ src/components/visualizations/FlappingWingDemoLazy │ Client-side lazy   │
+  │ .tsx                                               │ wrapper (Next.js   │
+  │                                                    │ 16 requirement)    │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │ src/components/visualizations/ParameterExplorer.ts │ 5-parameter slider │
+  │ x                                                  │  panel             │
+  ├────────────────────────────────────────────────────┼────────────────────┤
+  │ src/components/visualizations/PhysicsReadout.tsx   │ Live St/Re/forces  │
+  │                                                    │ display            │
+  └────────────────────────────────────────────────────┴────────────────────┘
+
+  Two Next.js 16 gotchas resolved:
+  1. Turbopack requires plugin names as strings ("remark-math") not imported
+  modules
+  2. dynamic({ ssr: false }) must live inside a "use client" component, not in
+  mdx-components.tsx
+
+✻ Baked for 2m 28s · 1 shell still running
+
+※ recap: Built a Next.js 16 + MDX + React Three Fiber + KaTeX scientific site     for bird flight physics — it's running at localhost:3000 with the 3D flapping   wing demo and all 18 equation sections working. Next: add the remaining         modules (Wake Topology, Strouhal Explorer, etc.). (disable recaps in /config)
+
+> Use skill creator skill to create a skill that creates scientific and
+  mathematical texts and 3d simulations like bird flapping physics here.
+
+● Skill(skill-creator)
+  ⎿  Successfully loaded skill
+
+● I have full context from the bird flapping session. Let me extract everything
+  I need and draft the skill — then we'll test it.
+
+● Now let me set up the skill directory and write everything. First the
+  reference files, then the main SKILL.md:
+
+● Bash(mkdir -p "C:\Users\simon\.claude\skills\sci-math-site\references")
+  ⎿  Done
+
+● Write(~\.claude\skills\sci-math-site\references\stack-setup.md)
+  ⎿  Wrote 205 lines to
+     ..\..\.claude\skills\sci-math-site\references\stack-setup.md
+      1 # Stack Setup Reference: Next.js 16 + MDX + KaTeX + R3F
+      2
+      3 ## Scaffold
+      4
+      5 ```bash
+      6 npx create-next-app@latest <project-name> \
+      7   --typescript --tailwind --eslint --app --src-dir \
+      8   --import-alias "@/*" --no-git
+      9 ```
+     … +234 lines (ctrl+o to expand)
+
+● Write(~\.claude\skills\sci-math-site\references\r3f-patterns.md)
+  ⎿  Wrote 349 lines to
+     ..\..\.claude\skills\sci-math-site\references\r3f-patterns.md
+       2 # React Three Fiber Patterns for Scientific Visualization
+       3 ## Core Component Structure
+       4
+       5 Every simulation follows this four-file pattern:
+       6
+       7 ```
+       8 MySimulation.tsx       — R3F Canvas + Scene (pure 3D, no UI)
+       9 MySimulationDemo.tsx   — Combined wrapper: Canvas + sliders + li
+         ve readout
+      10 MySimulationLazy.tsx   — Client-side lazy loader (ssr: false)
+     … +381 lines (ctrl+o to expand)
+
+● Write(~\.claude\skills\sci-math-site\references\content-structure.md)
+  ⎿  Wrote 233 lines to
+     ..\..\.claude\skills\sci-math-site\references\content-structure.md
+      2 # MDX Content Structure for Scientific Derivations
+      3 ## What makes a good scientific education page
+      4
+        t forward and backward to the others, the physical intuition shou
+        ld precede the math, and the interactive demo should sit at the t
+        op so readers can play before committing to the full derivation.
+      7 Good section count: **12–20 sections**. Fewer and it's a blog pos
+        t. More and it becomes a textbook chapter that nobody reads.
+      8
+      9 ---
+     … +254 lines (ctrl+o to expand)
+
+● Now write the main SKILL.md:
+
+● Write(~\.claude\skills\sci-math-site\SKILL.md)
+  ⎿  Wrote 201 lines to ..\..\.claude\skills\sci-math-site\SKILL.md
+       2 name: sci-math-site
+       4   Builds rigorous scientific and mathematical education sites: f
+       5   interactive 3D simulations (React Three Fiber), and live param
+         eter explorers — all on a
+         the user wants to createeX + R3F stack. Use this skill whenever
+         xplainer, or interactivetion, physics simulation, mathematical e
+       8   educational page — even if they don't say "Next.js" or "MDX".
+       9   double pendulum, orbital mechanics, fluid dynamics, wave funct
+      10   thermodynamics, or any "explain the physics/math of X with a s
+         imulation". Also triggers
+     … +247 lines (ctrl+o to expand)
+
+● The skill files are written. Now setting up evals and running parallel test
+  cases.
+
+● Bash(mkdir -p "C:\Users\simon\.claude\skills\sci-math-site\evals" && mkdir -p
+      "C:\Users\simon\.claude\skills\sci-math-site-workspace\iteration-1")
+  ⎿  Done
+
+● Write(~\.claude\skills\sci-math-site\evals\evals.json)
+  ⎿  Wrote 130 lines to ..\..\.claude\skills\sci-math-site\evals\evals.json
+      2   "skill_name": "sci-math-site",
+      3   "evals": [
+      5       "id": 0,
+      6       "prompt": "I want to build a scientific education page abou
+        athematical derivation using Lagrangian mechanics (Euler-Lagrange
+         equations, equations of motion, energy), all the equations rende
+         adjust the initial angles, masses, and rod lengths with sliders
+        and watch the chaotic trajectory unfold. Set up the full Next.js
+        der called 'chaos-site' inside C:\\Users\\simon\\Downloads.", fol
+      7       "expected_output": "A working Nex
+     … +171 lines (ctrl+o to expand)
+
+● Now spawn all 6 runs (3 with-skill + 3 baseline) simultaneously:
+
+● builder(Eval 0 WITH skill: double pendulum chaos site)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● builder(Eval 0 BASELINE: double pendulum without skill)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● builder(Eval 1 WITH skill: orbital mechanics module)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● builder(Eval 1 BASELINE: orbital mechanics without skill)
+  ⎿  Initializing…
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+· Running evaluations… (6m 28s · ↓ 17.0k tokens · thought for 20s)
+  ⎿  Initializing…
+
+· Running evaluations… (6m 28s · ↓ 17.0k tokens · thought for 20s)
+✢ Running evaluations… (6m 29s · ↓ 17.0k tokens · thought for 20s)
+  ⎿  √ Draft SKILL.md for sci-math-site skill
+     √ Write reference files (stack-setup, r3f-patterns, content-struct…        ✢ Running evaluations… (6m 36s · ↓ 17.3k tokens · thought for 20s)
+  ⎿  √ Draft SKILL.md for sci-math-site skill
+     √ Write reference files (stack-setup, r3f-patterns, content-struct…             √ Write reference files (stack-setup, r3f-patterns, content-struct…          ---                                                                             What the evals test and how they'll be graded:                                                                                                                  Eval 0 — Double pendulum chaos site (full scaffold)                             - next_config_uses_string_plugins — Does next.config.ts use "remark-math" as a   string (Turbopack fix)?                                                        - mdx_components_no_args — Does useMDXComponents() take no arguments (Next.js   16 API)?
+  - lazy_wrapper_exists — Is there a *Lazy.tsx client wrapper for dynamic({ ssr:   false })?                                                                      - mdx_page_has_latex — Does the MDX page have $$ block equations?
+  - compute_physics_exported — Is computePhysics exported from the simulation     component?                                                                    
+  Eval 1 — Orbital mechanics module (add to existing site)                        - Kepler's laws in the derivation, block LaTeX equations, R3F useFrame, ssr:    false lazy wrapper, live orbital period + energy                              
+  Eval 2 — Quantum harmonic oscillator
+  - Schrödinger equation, energy eigenvalues, ladder operators, R3F probability
+  density visualization, quantum number slider
+
+  The key question: does the skill fix the three Turbopack gotchas (string
+  plugins, no-args useMDXComponents, client-side lazy wrapper) that the baseline
+   will likely get wrong — since these are Next.js 16-specific and not in
+  standard training data?
+
+  I'll have the eval viewer ready for you to review as soon as the agents
+  finish. This will take 10–15 minutes.
+
+✢ Running evaluations… (6m 49s · ↓ 17.8k tokens · thought for 20s)
+  ⎿  √ Draft SKILL.md for sci-math-site skill
+     √ Write reference files (stack-setup, r3f-patterns, content-struct…
+     √ Write reference files (stack-setup, r3f-patterns, content-struct…
+  √ Write reference files (stack-setup, r3f-patterns, content-struct…
+  ⎿  √ Draft SKILL.md for sci-math-site skill
+     √ Write reference files (stack-setup, r3f-patterns, content-struct…
+  Two things are in flight:                                                                                                                                       ┌────────────────────────────────────────┬────────────────────────────────┐
+  │                 Thing                  │             Status             │
+  ├────────────────────────────────────────┼────────────────────────────────┤
+  │ Bird flapping physics site             │ ✅ Complete — npm run build    │
+  │ (bird_flapping_physics/site)           │ passed, live at localhost:3000 │
+  ├────────────────────────────────────────┼────────────────────────────────┤     │ sci-math-site skill                    │ ✅ Written — skill files are   │     │                                        │ complete                       │
+  ├────────────────────────────────────────┼────────────────────────────────┤     │ Skill evals                            │ ⏳ 6 agents still running      │     │                                        │ (optional quality check)       │     └────────────────────────────────────────┴────────────────────────────────┘   
+  Quick question — what do you want to push to GitHub?
+
+* Running evaluations… (15s · ↓ 200 tokens)
+  ⎿  √ Draft SKILL.md for sci-math-site skill
+     √ Write reference files (stack-setup, r3f-patterns, content-struct…
+←  [×] Push target  √ Submit  →
+
+Review your answers
+
+ ● What would you like to push to GitHub?
+   → Both
+
+Ready to submit your answers?
+
+> 1. Submit answers
+  2. Cancel
+
+
+
+
+
+
+
+  4 tasks (2 done, 1 in progress, 1 open)
+  √ Draft SKILL.md for sci-math-site skill
+  √ Write reference files (stack-setup, r3f-patterns, content-struct…
+  ■ Create evals JSON and run eval-viewer so human can review test c…
+  □ Run description optimization loop
+

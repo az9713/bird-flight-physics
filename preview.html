@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bird Flapping Flight Physics — Preview Safe</title>
+
+<style>
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #05070a;
+  color: #e6eef8;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#container {
+  width: 100vw;
+  height: 100vh;
+}
+
+#ui {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 430px;
+  max-width: calc(100vw - 24px);
+  background: rgba(0,0,0,0.78);
+  border: 1px solid rgba(255,255,255,0.16);
+  padding: 14px;
+  border-radius: 12px;
+  z-index: 10;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+}
+
+h2 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.small {
+  font-size: 12px;
+  opacity: 0.82;
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+.slider-row {
+  margin: 9px 0;
+}
+
+label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+input[type=range] {
+  width: 100%;
+}
+
+#readout {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  background: rgba(255,255,255,0.06);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+#equations {
+  margin-top: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.4;
+  background: rgba(255,255,255,0.045);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.eq {
+  font-family: "Times New Roman", serif;
+  font-size: 15px;
+  margin: 5px 0;
+}
+
+#status {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  color: #dce8ff;
+  background: rgba(0,0,0,0.65);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  z-index: 10;
+}
+
+#error {
+  position: absolute;
+  inset: 20px;
+  display: none;
+  background: rgba(30,0,0,0.9);
+  color: #fff;
+  padding: 20px;
+  border: 1px solid #ff8888;
+  border-radius: 10px;
+  z-index: 99;
+  white-space: pre-wrap;
+}
+</style>
+
+<!-- Preview-safe classic scripts. No ES-module bare imports. -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+
+<body>
+<div id="container"></div>
+
+<div id="ui">
+  <h2>3D Flapping Wing Aerodynamics</h2>
+  <div class="small">
+    Reduced-order unsteady aerodynamics: deforming wing kinematics, effective angle of attack,
+    force vectors, Strouhal scaling, added-mass scaling, and vortex-wake impulse visualization.
+  </div>
+
+  <div class="slider-row">
+    <label><span>Frequency f</span><span id="freqVal">1.50 Hz</span></label>
+    <input id="freq" type="range" min="0.20" max="6.00" step="0.05" value="1.50">
+  </div>
+
+  <div class="slider-row">
+    <label><span>Stroke amplitude A</span><span id="ampVal">1.00 m</span></label>
+    <input id="amp" type="range" min="0.20" max="3.00" step="0.05" value="1.00">
+  </div>
+
+  <div class="slider-row">
+    <label><span>Forward speed U</span><span id="velVal">6.00 m/s</span></label>
+    <input id="vel" type="range" min="1.00" max="20.00" step="0.25" value="6.00">
+  </div>
+
+  <div class="slider-row">
+    <label><span>Spanwise twist θ</span><span id="twistVal">0.40 rad</span></label>
+    <input id="twist" type="range" min="0.00" max="1.20" step="0.02" value="0.40">
+  </div>
+
+  <div class="slider-row">
+    <label><span>Wake strength</span><span id="wakeVal">1.00</span></label>
+    <input id="wake" type="range" min="0.20" max="2.50" step="0.05" value="1.00">
+  </div>
+
+  <div id="readout"></div>
+
+  <div id="equations">
+    <b>Model skeleton</b>
+    <div class="eq">α<sub>eff</sub>(r,t) = θ(r,t) − tan<sup>−1</sup>(V<sub>z</sub>/V<sub>x</sub>)</div>
+    <div class="eq">L′(r,t) = ½ρ U<sub>eff</sub><sup>2</sup> c(r) C<sub>L</sub>(α<sub>eff</sub>)</div>
+    <div class="eq">L′ = ρ U Γ</div>
+    <div class="eq">F′<sub>a</sub> ∼ ρ c² ḧ</div>
+    <div class="eq">St = fA/U</div>
+    <div class="eq">F ≈ −dI/dt, &nbsp; I = (ρ/2)∫x×ω dV</div>
+  </div>
+</div>
+
+<div id="status">Initializing...</div>
+<div id="error"></div>
+
+<script>
+(function () {
+  const errorBox = document.getElementById("error");
+  function fail(msg) {
+    errorBox.style.display = "block";
+    errorBox.textContent = msg;
+    document.getElementById("status").textContent = "Failed";
+  }
+
+  try {
+    if (!window.THREE) {
+      fail("Three.js did not load. The preview environment may be blocking external CDN scripts. Open the HTML file in Chrome or serve it with: python -m http.server 8000");
+      return;
+    }
+
+    const container = document.getElementById("container");
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x05070a);
+
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 4.5, 13);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    let controls = null;
+    if (THREE.OrbitControls) {
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+    }
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.72));
+
+    const d1 = new THREE.DirectionalLight(0xffffff, 1.2);
+    d1.position.set(5, 8, 7);
+    scene.add(d1);
+
+    const d2 = new THREE.DirectionalLight(0x88bbff, 0.55);
+    d2.position.set(-6, 2, -8);
+    scene.add(d2);
+
+    scene.add(new THREE.GridHelper(60, 60, 0x2c3440, 0x161b22));
+
+    const bird = new THREE.Group();
+    scene.add(bird);
+
+    const body = new THREE.Mesh(
+      new THREE.SphereGeometry(0.42, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0xffaa44, roughness: 0.55, metalness: 0.05 })
+    );
+    body.scale.set(1.4, 0.8, 0.75);
+    bird.add(body);
+
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.18, 24, 24),
+      new THREE.MeshStandardMaterial({ color: 0xffc777, roughness: 0.5 })
+    );
+    head.position.set(0, 0.18, 0.62);
+    bird.add(head);
+
+    const wingMat = new THREE.MeshStandardMaterial({
+      color: 0x66aaff,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.88,
+      roughness: 0.38,
+      metalness: 0.02
+    });
+
+    function makeWing(side) {
+      const chord = 1.45;
+      const span = 5.4;
+      const nx = 38;
+      const ny = 12;
+
+      const geo = new THREE.PlaneGeometry(span, chord, nx, ny);
+      const pos = geo.attributes.position;
+
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+
+        const eta = Math.abs(x) / (span / 2);
+        const taper = Math.max(0.15, 1.0 - 0.55 * eta);
+        const camber = 0.12 * Math.sin(Math.PI * (y / chord + 0.5)) * taper;
+        const sweep = 0.18 * side * eta * eta;
+
+        pos.setY(i, y * taper + sweep);
+        pos.setZ(i, camber);
+      }
+
+      geo.computeVertexNormals();
+
+      const wing = new THREE.Mesh(geo, wingMat);
+      wing.rotation.y = Math.PI / 2;
+      wing.position.x = side * 2.75;
+      wing.userData.side = side;
+
+      return wing;
+    }
+
+    const leftWing = makeWing(-1);
+    const rightWing = makeWing(1);
+    bird.add(leftWing);
+    bird.add(rightWing);
+
+    function arrow(color, origin) {
+      const a = new THREE.ArrowHelper(
+        new THREE.Vector3(0, 1, 0),
+        origin || new THREE.Vector3(0, 0, 0),
+        1.5,
+        color,
+        0.35,
+        0.22
+      );
+      scene.add(a);
+      return a;
+    }
+
+    const liftArrow = arrow(0x00ff77, new THREE.Vector3(0, 0.2, 0));
+    const thrustArrow = arrow(0xff4444, new THREE.Vector3(0, -0.25, 0));
+    const dragArrow = arrow(0xffdd44, new THREE.Vector3(0, -0.55, 0));
+
+    const wakeGroup = new THREE.Group();
+    scene.add(wakeGroup);
+
+    const vortexParticles = [];
+    const particleGeo = new THREE.SphereGeometry(0.055, 8, 8);
+
+    for (let i = 0; i < 320; i++) {
+      const p = new THREE.Mesh(
+        particleGeo,
+        new THREE.MeshBasicMaterial({
+          color: i % 2 ? 0x44ccff : 0xaaddff,
+          transparent: true,
+          opacity: 0.74
+        })
+      );
+
+      p.userData.phase = Math.random() * Math.PI * 2;
+      p.userData.radius = 0.5 + Math.random() * 2.0;
+      p.userData.side = Math.random() < 0.5 ? -1 : 1;
+      p.position.set(
+        p.userData.side * (1 + Math.random() * 2.5),
+        (Math.random() - 0.5) * 1.5,
+        -Math.random() * 44
+      );
+
+      wakeGroup.add(p);
+      vortexParticles.push(p);
+    }
+
+    const sliders = {
+      freq: document.getElementById("freq"),
+      amp: document.getElementById("amp"),
+      vel: document.getElementById("vel"),
+      twist: document.getElementById("twist"),
+      wake: document.getElementById("wake")
+    };
+
+    function updateLabels() {
+      document.getElementById("freqVal").textContent = Number(sliders.freq.value).toFixed(2) + " Hz";
+      document.getElementById("ampVal").textContent = Number(sliders.amp.value).toFixed(2) + " m";
+      document.getElementById("velVal").textContent = Number(sliders.vel.value).toFixed(2) + " m/s";
+      document.getElementById("twistVal").textContent = Number(sliders.twist.value).toFixed(2) + " rad";
+      document.getElementById("wakeVal").textContent = Number(sliders.wake.value).toFixed(2);
+    }
+
+    Object.values(sliders).forEach(s => s.addEventListener("input", updateLabels));
+    updateLabels();
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const t = clock.getElapsedTime();
+
+      const f = parseFloat(sliders.freq.value);
+      const A = parseFloat(sliders.amp.value);
+      const U = parseFloat(sliders.vel.value);
+      const twist = parseFloat(sliders.twist.value);
+      const wakeStrength = parseFloat(sliders.wake.value);
+
+      const omega = 2 * Math.PI * f;
+      const flap = Math.sin(omega * t);
+      const flapDot = A * omega * Math.cos(omega * t);
+      const flapDDot = -A * omega * omega * Math.sin(omega * t);
+
+      const alphaEff = twist - Math.atan2(flapDot, U);
+      const Ueff = Math.sqrt(U * U + flapDot * flapDot);
+
+      const rho = 1.225;
+      const S = 7.5;
+      const c = 0.75;
+
+      const CL = 2 * Math.PI * alphaEff;
+      const CD = 0.025 + 0.08 * alphaEff * alphaEff;
+
+      const lift = 0.5 * rho * Ueff * Ueff * S * CL;
+      const profileDrag = 0.5 * rho * Ueff * Ueff * S * CD;
+      const addedMass = rho * c * c * flapDDot * S;
+
+      const gamma = Math.atan2(flapDot, U);
+      const thrust = Math.max(0, lift * Math.sin(gamma) - profileDrag * Math.cos(gamma));
+      const drag = Math.abs(profileDrag);
+
+      const strokeAngle = 0.62 * A * flap;
+      const pitchAngle = twist * Math.cos(omega * t);
+
+      leftWing.rotation.z = strokeAngle;
+      rightWing.rotation.z = -strokeAngle;
+
+      leftWing.rotation.x = pitchAngle;
+      rightWing.rotation.x = -pitchAngle;
+
+      bird.position.y = 0.08 * Math.sin(omega * t + Math.PI / 5);
+
+      liftArrow.setDirection(new THREE.Vector3(0, Math.sign(lift || 1), 0));
+      liftArrow.setLength(Math.max(0.3, Math.min(5.5, Math.abs(lift) * 0.008)));
+
+      thrustArrow.setDirection(new THREE.Vector3(1, 0, 0));
+      thrustArrow.setLength(Math.max(0.25, Math.min(4.5, thrust * 0.018)));
+
+      dragArrow.setDirection(new THREE.Vector3(-1, 0, 0));
+      dragArrow.setLength(Math.max(0.25, Math.min(4.5, drag * 0.018)));
+
+      const St = f * A / U;
+      const ReScaled = U * c / 1.5e-5;
+
+      document.getElementById("readout").innerHTML =
+        "<b>Live nondimensional / force readout</b><br>" +
+        "St = " + St.toFixed(3) + " &nbsp; | &nbsp; Re ≈ " + ReScaled.toExponential(2) + "<br>" +
+        "α<sub>eff</sub> = " + alphaEff.toFixed(3) + " rad &nbsp; | &nbsp; U<sub>eff</sub> = " + Ueff.toFixed(2) + " m/s<br>" +
+        "C<sub>L</sub> = " + CL.toFixed(2) + " &nbsp; | &nbsp; C<sub>D</sub> = " + CD.toFixed(3) + "<br>" +
+        "L ≈ " + lift.toFixed(1) + " N &nbsp; | &nbsp; T ≈ " + thrust.toFixed(1) + " N &nbsp; | &nbsp; D ≈ " + drag.toFixed(1) + " N<br>" +
+        "Added-mass scale ∝ " + addedMass.toFixed(1);
+
+      vortexParticles.forEach((p, i) => {
+        p.position.z += 0.055 * U;
+
+        const zLag = -p.position.z;
+        const ringPhase = 0.65 * zLag + omega * t + p.userData.phase;
+        const ringRadius = p.userData.radius * wakeStrength;
+
+        p.position.x =
+          p.userData.side * (1.2 + ringRadius * Math.cos(ringPhase));
+
+        p.position.y =
+          -0.035 * zLag
+          + ringRadius * 0.38 * Math.sin(ringPhase)
+          - 0.55 * wakeStrength * Math.sin(omega * t - 0.13 * zLag);
+
+        if (p.position.z > 8) {
+          p.position.z = -44 - Math.random() * 4;
+          p.userData.phase = Math.random() * Math.PI * 2;
+          p.userData.side = Math.random() < 0.5 ? -1 : 1;
+          p.userData.radius = 0.5 + Math.random() * 2.0;
+        }
+      });
+
+      if (controls) controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+    document.getElementById("status").textContent = "Running: drag to orbit, scroll to zoom";
+
+    window.addEventListener("resize", function () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+  } catch (err) {
+    fail("Runtime error:\n\n" + (err && err.stack ? err.stack : String(err)));
+  }
+})();
+</script>
+</body>
+</html>
