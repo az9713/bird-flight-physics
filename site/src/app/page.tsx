@@ -26,10 +26,10 @@ const SECTIONS = [
     badge: "Live Demo",
   },
   {
-    href: "#",
+    href: "/physics/aeroelastic-wing",
     title: "Aeroelastic Wing",
     desc: "Fluid–structure coupling: Cauchy number, controlled compliance, and passive pitch adaptation.",
-    badge: "Coming soon",
+    badge: "Live Demo",
   },
   {
     href: "#",

@@ -1,0 +1,205 @@
+# Aeroelastic Wing Deformation
+
+*A perfectly rigid wing is an engineer's fantasy — real bird wings flex, twist, and deform under aerodynamic load, and the compliance is not a flaw but a precisely tuned advantage.*
+
+<AeroelasticWingDemo />
+
+---
+
+## 1. Why rigid wings are suboptimal — the compliance advantage
+
+Classical aerodynamics assumes a rigid wing: geometry fixed, angle of attack set externally. This is a reasonable approximation for thin, stiff metal structures, but bird wings are thin membrane-and-bone composites that deform significantly under aerodynamic load.
+
+The key observation: **controlled flexibility generates thrust without active actuation**. When a flexible wing is pushed by aerodynamic forces, it twists nose-down near the tip, increasing the local effective angle of attack in a way that redirects lift forward. This passive pitch adaptation extracts more useful work per stroke than a rigid wing at the same input energy, and does so with zero control effort.
+
+The degree of compliance is characterized by the **Cauchy number** — watch the simulation as you lower wing **Stiffness** or increase **Flow speed**: the wing curves and twists more, colors shift toward orange (high stress), and the thrust arrow grows.
+
+---
+
+## 2. Governing equations — coupled Navier-Stokes and beam elasticity
+
+The fluid obeys incompressible Navier-Stokes in a domain $\Omega(t)$ whose boundary moves with the wing surface:
+
+$$
+\rho\left(\frac{\partial \mathbf{u}}{\partial t} + \mathbf{u}\cdot\nabla\mathbf{u}\right) = -\nabla p + \mu\nabla^2\mathbf{u}, \quad \nabla\cdot\mathbf{u} = 0
+$$
+
+The wing structure obeys Euler-Bernoulli beam theory (bending) and Saint-Venant torsion:
+
+$$
+EI\frac{\partial^4 w}{\partial y^4} + m\frac{\partial^2 w}{\partial t^2} = f_z(y,t)
+$$
+
+$$
+GJ\frac{\partial^2 \theta}{\partial y^2} - I_\alpha\frac{\partial^2 \theta}{\partial t^2} = -m_\theta(y,t)
+$$
+
+where $w(y,t)$ is bending deflection, $\theta(y,t)$ is twist, $EI$ is bending stiffness, $GJ$ is torsional stiffness, $f_z$ and $m_\theta$ are aerodynamic distributed force and moment.
+
+The fluid and structure are coupled through the boundary condition: the fluid velocity at the wing surface equals the structural velocity $\dot{w}$ — a nonlinear, moving-boundary problem.
+
+---
+
+## 3. Cauchy number: $\mathrm{Ca} = \rho U^2 L / E$
+
+The **Cauchy number** compares the aerodynamic dynamic pressure $\rho U^2$ to the structural stiffness $E/L$:
+
+$$
+\mathrm{Ca} = \frac{\rho U^2 L}{E}
+$$
+
+where $L$ is the semi-chord (the relevant elastic length for pitch deformation) and $E$ is the effective elastic modulus of the wing composite.
+
+Physical interpretation:
+- $\mathrm{Ca} \ll 1$: structure is stiff relative to fluid forces — nearly rigid wing
+- $\mathrm{Ca} \sim 1$: fluid and elastic forces are comparable — significant deformation
+- $\mathrm{Ca} \gg 1$: structure is too compliant — large uncontrolled deformations, potential instability
+
+The tip deflection scales as $\delta_{\text{tip}}/b \approx 0.3\,\mathrm{Ca}$ and tip twist as $\theta_{\text{tip}} \approx 0.22\,\mathrm{Ca}$ for typical bird wing geometry — values shown live in the readout.
+
+---
+
+## 4. Reduced velocity: $U_r = U/(fL)$
+
+For a flapping wing, the second key dimensionless parameter is the **reduced velocity**:
+
+$$
+U_r = \frac{U}{f\,L}
+$$
+
+where $f$ is the flapping frequency and $L$ is the semi-chord. Physically, $U_r$ compares the time for the wing to travel one semi-chord at the flight speed to the flapping period. It is also the inverse of the reduced frequency $k = 1/U_r$.
+
+$U_r$ governs aeroelastic stability: there exists a critical reduced velocity $U_{r,\text{flutter}}$ above which the coupled bending-torsion mode goes unstable. This is classic **classical flutter** — the subject of Section 8.
+
+---
+
+## 5. Passive pitch mechanism — how flexibility generates thrust
+
+Consider a wing section that bends upward (during the downstroke) with velocity $\dot{w} > 0$. The trailing edge is more flexible than the leading edge, so aerodynamic drag on the trailing portion causes the wing to twist **nose-down** (leading edge up). This increases the local effective angle of attack:
+
+$$
+\alpha_{\text{eff}} = \alpha_{\text{geom}} + \Delta\alpha_{\text{elastic}}(\theta_{\text{tip}})
+$$
+
+The increased $\alpha_{\text{eff}}$ generates more lift, which is tilted forward relative to the stroke plane (because the wing is moving upward), producing net thrust:
+
+$$
+T_{\text{passive}} \propto L\cdot\sin(\alpha_{\text{eff}}) \propto \mathrm{Ca} \cdot \mathrm{St}
+$$
+
+This passive mechanism works without any active muscle control — the elastic structure acts as a mechanical feedforward controller, automatically increasing pitch at the right moment in the stroke. Watch the **α eff** readout increase as Ca rises.
+
+---
+
+## 6. Bending and torsion modes of a beam wing
+
+A uniform cantilever beam has natural frequencies for bending:
+
+$$
+f_{n,\text{bend}} = \frac{\lambda_n^2}{2\pi b^2}\sqrt{\frac{EI}{m}}
+$$
+
+where $\lambda_1 = 1.875$, $\lambda_2 = 4.694$, $\lambda_3 = 7.855$, … (Euler-Bernoulli roots).
+
+And for torsion:
+
+$$
+f_{n,\text{tor}} = \frac{(2n-1)}{4b}\sqrt{\frac{GJ}{I_\alpha}}
+$$
+
+For a typical bird wing, the first bending frequency $f_{1,\text{bend}} \approx 10$–$30$ Hz and the first torsional frequency $f_{1,\text{tor}} \approx 15$–$40$ Hz — both well above the wingbeat frequency (1–10 Hz). This frequency separation ensures that the wing responds quasi-statically to aerodynamic loads, without resonating with the stroke.
+
+---
+
+## 7. Effective angle of attack from wing deformation
+
+The total effective angle of attack at spanwise station $y$ integrates geometric, kinematic, and elastic contributions:
+
+$$
+\alpha_{\text{eff}}(y,t) = \alpha_{\text{geom}}(y,t) - \frac{\dot{h}(y,t)}{U} + \theta_{\text{elastic}}(y,t)
+$$
+
+where $\dot{h}$ is the flapping velocity at station $y$ (the kinematic contribution from Section 4 of the Wing Flapping module) and $\theta_{\text{elastic}}$ is the elastic twist computed from the beam torsion equation.
+
+For optimal passive pitch adaptation, $\theta_{\text{elastic}}(y,t)$ should be approximately equal and opposite to the kinematic contribution $-\dot{h}/U$, canceling the angle-of-attack variation across the stroke and maintaining a more uniform $\alpha_{\text{eff}}$. The optimal Cauchy number $\mathrm{Ca}^*$ achieves this cancellation best.
+
+---
+
+## 8. Aeroelastic instabilities — divergence and flutter
+
+Two distinct instabilities can occur:
+
+**Static divergence** occurs when aerodynamic torsional stiffness exceeds structural torsional stiffness. The wing twists without bound at a critical speed:
+
+$$
+U_{\text{div}} = \sqrt{\frac{GJ}{\frac{1}{2}\rho\,c^2\,a_0\,(e - x_{ac})}}
+$$
+
+where $e$ is the elastic axis position and $x_{ac}$ is the aerodynamic center.
+
+**Classical flutter** is a dynamic instability where bending and torsion modes couple through the unsteady aerodynamic loads. The flutter boundary in reduced velocity space is found by the **Theodorsen flutter criterion**:
+
+$$
+U_{r,\text{flutter}} = f\!\left(\frac{f_\theta}{f_h}, \frac{r_\alpha}{b}, x_\alpha, \mu\right)
+$$
+
+where $r_\alpha$ is the radius of gyration, $x_\alpha$ is the static unbalance, and $\mu = m/(\pi\rho b^2)$ is the mass ratio.
+
+In the simulation, increase **Flow speed** past the flutter boundary — the wing will begin to oscillate with growing amplitude and the readout shows "FLUTTER — unstable" in red.
+
+---
+
+## 9. Stability boundary in $(Ca, U_r)$ space
+
+Combining the Cauchy number and reduced velocity, the aeroelastic operating envelope is bounded by two curves:
+
+1. **Flutter boundary:** $U_r = U_{r,\text{flutter}}(\mathrm{Ca}, \zeta)$ where $\zeta$ is damping ratio
+2. **Divergence boundary:** $\mathrm{Ca} = \mathrm{Ca}_{\text{div}}$ (a constant for given geometry)
+
+The **structural damping** slider moves the flutter boundary upward (more damping = higher flutter speed). Real bird wings have $\zeta \approx 0.02$–$0.10$ from material hysteresis in feather shafts and inter-feather friction — enough to provide a useful flutter margin at cruise conditions.
+
+The safe operating region lies below both curves. Birds cruise with $\mathrm{Ca} \approx 0.3$–$1.2$ and $U_r \ll U_{r,\text{flutter}}$, maintaining a comfortable flutter margin while exploiting the passive pitch benefit.
+
+---
+
+## 10. Optimal compliance — maximum thrust at $\mathrm{Ca}^*$
+
+Thrust as a function of Cauchy number shows a clear optimum. Too rigid ($\mathrm{Ca} \to 0$): no passive pitch adaptation, thrust limited by geometric AoA alone. Too flexible ($\mathrm{Ca} \to \infty$): the wing deforms so much that the chord twists past the ideal angle, reducing $\alpha_{\text{eff}}$ and generating less thrust; ultimately flutter sets in.
+
+The optimal Cauchy number satisfies:
+
+$$
+\frac{dT}{d\mathrm{Ca}}\bigg|_{\mathrm{Ca}^*} = 0 \quad \Rightarrow \quad \mathrm{Ca}^* \approx \frac{\pi}{2k}
+$$
+
+where $k = \pi f c / U$ is the reduced frequency. For typical flapping birds ($k \approx 0.2$–$0.5$), this gives $\mathrm{Ca}^* \approx 3$–$8$ — consistent with measured wing stiffness values in shorebirds and songbirds.
+
+---
+
+## 11. Feather rachis stiffness and its evolutionary tuning
+
+The primary structural element of the flight feather is the **rachis** — a hollow tapered cylinder of $\beta$-keratin. Its flexural stiffness $EI$ and torsional stiffness $GJ$ are set by:
+
+$$
+EI \propto d^4 \cdot E_{\text{keratin}}, \quad GJ \propto d^4 \cdot G_{\text{keratin}}
+$$
+
+where $d$ is the outer diameter. The $d^4$ scaling makes stiffness highly sensitive to rachis thickness, which varies along the feather length, allowing a nearly perfect tuning of the spanwise compliance profile $EI(y)$.
+
+The ratio $GJ/EI = G/E$ is fixed by the keratin material ($G/E \approx 0.35$), but the absolute magnitudes $EI$ and $GJ$ are controlled by the rachis cross-section taper. Bird species show systematic differences in rachis geometry correlated with their flight style: long-distance migrants have stiffer rachises (lower $\mathrm{Ca}$, more efficiency at cruise) while maneuver-dominant species have more flexible wings (higher $\mathrm{Ca}$, better passive pitch but higher flutter risk).
+
+---
+
+## 12. The deepest physical picture
+
+The entire aeroelastic problem is organized by one dimensionless group:
+
+$$
+\boxed{
+  \mathrm{Ca} = \frac{\rho U^2 L}{E}
+}
+$$
+
+When $\mathrm{Ca} = 1$, the aerodynamic pressure and the elastic restoring force are equal — this is the operating point where fluid and structure are in dialogue, each shaping the other. Below this value the structure is deaf to the fluid; above it the structure is overwhelmed. The optimal compliance $\mathrm{Ca}^*$ sits near this balance point, tuned by evolution to extract the maximum passive pitch benefit without crossing into the flutter regime.
+
+The wing is not a rigid surface that the bird moves through the air. It is an elastic body whose shape is continuously negotiated between aerodynamic loading and structural resistance — and the bird has evolved to exploit that negotiation for free thrust.
