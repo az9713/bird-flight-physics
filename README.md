@@ -5,7 +5,7 @@ Rigorous unsteady aerodynamics of bird wing flapping — full mathematical deriv
 ![The physics in a nutshell](nutshell.jpg)
 *The entire physics chain distilled: from wing kinematics through vortex wake impulse to lift and thrust.*
 
-> **Demo video:** [▶ Watch simulation](YOUR_VIDEO_URL_HERE)
+> **Demo video:** [▶ Watch simulation](https://github.com/user-attachments/assets/17379472-6255-4169-aa53-cbecfa8f64fb)
 
 
 ---
