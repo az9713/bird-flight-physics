@@ -8,10 +8,10 @@ const SECTIONS = [
     badge: "Live Demo",
   },
   {
-    href: "#",
+    href: "/physics/wake-topology",
     title: "Wake Topology",
     desc: "Vortex ring shedding, impulse theorem, and the discrete ring vs. continuous ladder wake transition.",
-    badge: "Coming soon",
+    badge: "Live Demo",
   },
   {
     href: "#",

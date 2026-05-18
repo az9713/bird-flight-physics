@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import FlappingWingDemo from "@/components/visualizations/FlappingWingDemoLazy";
+import WakeTopologyDemo from "@/components/visualizations/WakeTopologyDemoLazy";
 
 const components: MDXComponents = {
   h1: ({ children }) => (
@@ -40,6 +41,7 @@ const components: MDXComponents = {
   ),
   hr: () => <hr className="border-slate-700 my-8" />,
   FlappingWingDemo,
+  WakeTopologyDemo,
 };
 
 export function useMDXComponents(): MDXComponents {

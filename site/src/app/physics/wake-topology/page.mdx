@@ -1,0 +1,270 @@
+# Wake Topology of Flapping Flight
+
+*Every force a bird exerts on the air lives permanently in the wake as organized vortex structures — understanding their geometry is understanding the force itself.*
+
+<WakeTopologyDemo />
+
+---
+
+## 1. Why vorticity must be shed — Kelvin's circulation theorem
+
+For an inviscid, barotropic fluid under conservative body forces, Kelvin's theorem states that the circulation around any closed material contour is conserved:
+
+$$
+\frac{D\Gamma}{Dt} = \oint_{\mathcal{C}(t)} \mathbf{u} \cdot d\mathbf{l} = 0
+$$
+
+The bird's wing carries a bound circulation $\Gamma_b$ that changes throughout the stroke — it must be large on the downstroke to generate lift, and smaller (or reversed) on the upstroke. Every change in $\Gamma_b$ must be balanced by vorticity shed into the wake. The wake is not a byproduct of flight; it is the physical record of every force the bird has ever applied.
+
+---
+
+## 2. The bound vortex and Helmholtz's constraints
+
+Helmholtz's vortex theorems place rigid constraints on how vortex filaments can exist in a fluid:
+
+1. Vortex filaments cannot end in a fluid — they must close on themselves or terminate at a boundary.
+2. A vortex filament moves with the fluid (in the inviscid limit).
+3. The circulation of a vortex tube is constant along its length.
+
+The wing carries a **bound vortex** of circulation $\Gamma_b(t)$. When the wing accelerates from rest, an equal and opposite **starting vortex** is shed at the trailing edge. For flapping flight, each half-stroke shed a **stopping vortex** when $\Gamma_b$ changes:
+
+$$
+\Gamma_b(t) + \Gamma_{\text{wake}}(t) = 0
+$$
+
+The wake vorticity is the cumulative record of all bound-circulation changes.
+
+---
+
+## 3. Vortex ring geometry — circulation, core radius, self-induced velocity
+
+At the end of each downstroke, the shed vortex sheet rolls up into a roughly circular **vortex ring** of radius $R \approx b/2$ (half-wingspan) and circulation $\Gamma$.
+
+The core radius $a$ sets the vortex tube thickness; for a freshly rolled-up ring $a \approx 0.07 R$ and grows by viscous diffusion.
+
+The ring propels itself through the fluid via **self-induction**. From the Biot-Savart law, applied to a thin-core torus:
+
+$$
+U_{\text{ring}} = \frac{\Gamma}{4\pi R}\left(\ln\frac{8R}{a} - \frac{1}{4}\right)
+$$
+
+A larger, faster-spinning ring moves faster than a small weak one. Typical bird wakes give $U_{\text{ring}} \sim 0.3$–$1.5$ m/s — visible in the **U self-induced** readout.
+
+---
+
+## 4. The impulse theorem: $\mathbf{F} = -d\mathbf{I}/dt$
+
+The **hydrodynamic impulse** of a vortex ring (the momentum content of the entire vortex flow field) is:
+
+$$
+\mathbf{I} = \rho\,\Gamma\,\pi R^2\,\hat{\mathbf{n}}
+$$
+
+where $\hat{\mathbf{n}}$ is the unit normal to the ring plane (pointing in the thrust direction).
+
+This is not just the kinetic energy of the ring — it is the integrated first moment of vorticity over all space, and it equals the impulse the bird had to apply to the fluid to create that ring.
+
+By Newton's third law for fluid mechanics:
+
+$$
+\mathbf{F}_{\text{bird}} = -\frac{d\mathbf{I}_{\text{wake}}}{dt}
+$$
+
+The bird's net force equals the rate at which it adds impulse to the wake. This formulation bypasses pressure fields entirely — it is exact for incompressible flow and makes no quasi-steady assumption.
+
+---
+
+## 5. Ring spacing: $\lambda = U/f$
+
+Each wingbeat cycle takes time $T = 1/f$. During this interval the bird travels a distance $U/f$, so successive rings are separated by:
+
+$$
+\lambda = \frac{U}{f} = \frac{A}{\mathrm{St}}
+$$
+
+The second equality follows from the definition $\mathrm{St} = fA/U$. Rearranging:
+
+- **High St** (fast flapping, slow speed): rings packed tightly, $\lambda \ll A$
+- **Low St** (slow flapping, fast speed): rings well separated, $\lambda \gg A$
+
+Try the **Frequency f** and **Forward speed U** sliders — watch ring spacing change in real time. The **λ = U/f** readout confirms the relationship.
+
+---
+
+## 6. Discrete ring wake vs. continuous ladder wake
+
+When rings are widely spaced ($\lambda > 2R$) they are aerodynamically isolated — the classic **discrete ring wake** observed in slow or hovering flight. Each ring carries one stroke's worth of impulse.
+
+As St increases and rings pack closer together, adjacent rings merge their vortex tubes. Above a critical Strouhal number $\mathrm{St}_c \approx 0.4$–$0.5$, the wake transitions to a **continuous ladder wake** (also called a reverse Kármán vortex street in 2D), where the vorticity forms interconnected loops rather than isolated rings.
+
+$$
+\mathrm{St}_c \approx \frac{A}{2R} \approx \frac{A}{b}
+$$
+
+The regime label in the readout panel tracks which regime your parameter combination selects. Efficient cruising birds ($0.2 \lesssim \mathrm{St} \lesssim 0.4$) operate near the transition.
+
+---
+
+## 7. Far-field momentum flux and Froude efficiency
+
+The thrust the bird generates equals the rate at which ring impulse is added to the wake:
+
+$$
+T = \frac{dI}{dt} = \rho\,\Gamma\,\pi R^2\,f
+$$
+
+The wake carries kinetic energy — the induced velocity $w$ of fluid passing through the ring disk of area $A_{\text{disk}} = \pi R^2$:
+
+$$
+w = \frac{T}{2\rho\,A_{\text{disk}}\,U}
+$$
+
+The **Froude propulsive efficiency** compares useful power $TU$ to total power $T(U + w/2)$:
+
+$$
+\eta_F = \frac{TU}{T(U + w/2)} = \frac{U}{U + w/2}
+$$
+
+Efficiency approaches 1 when $w \ll U$ — large, slow-moving rings are energetically cheaper than small, fast ones. This is why large birds have long wingspans: maximizing $R$ minimizes $w$ for a given thrust.
+
+---
+
+## 8. Mutual induction between successive rings
+
+A train of co-axial vortex rings of the same sign does not travel independently. Each ring induces a velocity on its neighbors. A ring ahead of another ring (in the direction of self-induced motion) is accelerated; the ring behind is decelerated.
+
+For two rings separated by distance $d$ along the axis:
+
+$$
+U_{\text{mutual}} \approx \frac{\Gamma R^2}{2(R^2 + d^2)^{3/2}} \cdot \pi R
+$$
+
+In the far-field limit $d \gg R$, this decays as $\Gamma R^3/d^3$ (dipole scaling). For tightly packed rings ($d \sim R$) the mutual velocity is comparable to the self-induced velocity, causing **leapfrogging** oscillations in long ring trains.
+
+In bird wakes this manifests as a wave-like undulation of ring positions downstream — observable in PIV measurements as periodic variations in ring height.
+
+---
+
+## 9. Vortex ring energy and wake efficiency
+
+The kinetic energy stored in a vortex ring (integrated over all fluid) is:
+
+$$
+E_{\text{ring}} = \frac{1}{2}\rho\,\Gamma^2\,R\left(\ln\frac{8R}{a} - \frac{7}{4}\right)
+$$
+
+Power dissipated into the wake per unit time (energy left behind that does no useful work):
+
+$$
+P_{\text{wake}} = E_{\text{ring}} \cdot f
+$$
+
+The overall propulsive efficiency is:
+
+$$
+\eta = \frac{TU}{TU + P_{\text{wake}}}
+$$
+
+Minimizing $P_{\text{wake}}$ for a fixed thrust $T$ means maximizing ring radius $R$ (larger $R$ stores less energy per unit impulse) and minimizing circulation $\Gamma$ (by spreading force over many small rings rather than a few large ones — i.e., flapping faster at lower amplitude). These two constraints trade off directly against each other and produce the observed optimal Strouhal range.
+
+---
+
+## 10. Two-dimensional limit — the reverse Kármán street
+
+In the limit of infinite span, vortex rings collapse to point vortices in the plane of symmetry. Two alternating rows of point vortices form a **vortex street**.
+
+The **normal Kármán vortex street** (bluff-body drag) has upper-row vortices rotating clockwise and lower-row counterclockwise. The resulting momentum flux is directed upstream — drag.
+
+A **flapping foil** reverses the arrangement: upper-row vortices rotate counterclockwise, lower-row clockwise. The momentum flux is directed downstream — thrust.
+
+The 2D thrust per unit span from a reverse Kármán street with inter-vortex spacing $a$ and inter-row distance $h$:
+
+$$
+T_{2D} = \rho\,\Gamma\,U\left(1 - \frac{\Gamma}{4Uh}\right)
+$$
+
+This is the two-dimensional analogue of $T = \rho\Gamma\pi R^2 f$. The 3D ring result recovers the 2D result in the limit $R \to \infty$, $f \to 0$ with $\pi R^2 f$ fixed.
+
+---
+
+## 11. PIV wake measurement
+
+Particle Image Velocimetry (PIV) is the experimental tool that made vortex ring wakes directly visible. A laser sheet illuminates seeding particles; two frames separated by a short time $\Delta t$ give the velocity field:
+
+$$
+\mathbf{u}(\mathbf{x}) \approx \frac{\Delta\mathbf{x}_{\text{particle}}}{\Delta t}
+$$
+
+Vorticity is computed as $\boldsymbol{\omega} = \nabla \times \mathbf{u}$, and circulation is integrated:
+
+$$
+\Gamma = \oint_{\mathcal{C}} \mathbf{u} \cdot d\mathbf{l} = \iint_{S} \boldsymbol{\omega} \cdot d\mathbf{A}
+$$
+
+PIV measurements of birds (Spedding 1987, Hedenström et al. 2006) confirmed the discrete ring wake at low speed and continuous ladder wake at cruise, validating the theoretical framework here. The measured $\Gamma$ values match quasi-steady estimates to within 15–30%, demonstrating that the reduced-order model captures the dominant physics.
+
+---
+
+## 12. Wake age and vortex decay
+
+After being shed, a vortex ring diffuses viscously. The azimuthal velocity profile evolves from a thin-core to a **Lamb-Oseen** profile:
+
+$$
+u_\theta(r,t) = \frac{\Gamma}{2\pi r}\left(1 - e^{-r^2/(4\nu t)}\right)
+$$
+
+where $\nu \approx 1.5 \times 10^{-5}$ m²/s is the kinematic viscosity of air and $t$ is the ring's age.
+
+The effective core radius grows as:
+
+$$
+a(t) = \sqrt{4\nu t}
+$$
+
+Peak vorticity decays as:
+
+$$
+\omega_{\max}(t) = \frac{\Gamma}{4\pi\nu t}
+$$
+
+For a ring shed 0.5 s ago moving at 7 m/s (3.5 m downstream), $a \approx 5$ mm — still tight compared to $R \sim 0.5$ m. The **Vortex decay rate** slider in the demo models the effective decay speed; slower flight means older rings at any given downstream distance.
+
+---
+
+## 13. Reduced-order model — ring circulation from quasi-steady lift
+
+We can close the model by connecting ring circulation to aerodynamic lift. From the Kutta-Joukowski theorem, lift per unit span at spanwise station $y$:
+
+$$
+L'(y,t) = \rho\,U_{\text{eff}}\,\Gamma(y,t)
+$$
+
+Inverting:
+
+$$
+\Gamma(y,t) = \frac{L'(y,t)}{\rho\,U_{\text{eff}}} = \frac{C_L\,c(y)\,U_{\text{eff}}}{2}
+$$
+
+The total ring impulse integrates over the span:
+
+$$
+I = \rho \int_{-b/2}^{b/2} \Gamma(y)\,\pi R^2(y)\,dy \approx \rho\,\bar{\Gamma}\,\pi\left(\frac{b}{2}\right)^2
+$$
+
+where $\bar{\Gamma}$ is the span-averaged circulation and $R = b/2$. This is the formula implemented in the simulation's **Thrust** readout. The approximation holds to within 20% for typical elliptic spanwise loading, improving with more detailed span integration (see the Spanwise Circulation module).
+
+---
+
+## 14. The deepest physical picture
+
+Every analysis of flapping flight — quasi-steady lift, Theodorsen theory, CFD — ultimately traces back to one equation:
+
+$$
+\boxed{
+  \mathbf{F} = -\frac{d\mathbf{I}_{\text{wake}}}{dt}
+}
+$$
+
+The bird does not "push against the air." It creates organized vortex structures — rings of circulating fluid — whose collective momentum $\mathbf{I}$ equals the integrated flight forces. The wake is not waste; it is the physical embodiment of the forces that keep the bird aloft.
+
+This formulation is exact for incompressible inviscid flow (and a very good approximation for real air at bird Reynolds numbers). It connects the microscopic kinematics of wing motion to the macroscopic momentum balance without any quasi-steady assumption, any pressure-field integration, or any turbulence model. The shape, spacing, circulation, and decay of the vortex rings in the wake carry the complete aerodynamic history of the flight.
