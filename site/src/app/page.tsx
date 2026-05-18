@@ -32,10 +32,10 @@ const SECTIONS = [
     badge: "Live Demo",
   },
   {
-    href: "#",
+    href: "/physics/cfd-comparison",
     title: "CFD Comparison",
     desc: "How reduced-order models compare to DNS and panel-method results across Re regimes.",
-    badge: "Coming soon",
+    badge: "Live Demo",
   },
 ];
 

@@ -1,0 +1,239 @@
+# CFD Comparison — Model Hierarchy for Flapping Flight
+
+*No single model is right everywhere. The art is knowing which simplification is safe at your Reynolds number, reduced frequency, and acceptable error budget.*
+
+<CfdComparisonDemo />
+
+---
+
+## 1. The model hierarchy — why we need multiple levels
+
+Aerodynamic prediction for flapping flight spans a vast range of fidelity:
+
+| Model | Cost | Error range |
+|-------|------|-------------|
+| Quasi-steady | $O(N)$ | 5–80% |
+| Unsteady panel / Theodorsen | $O(N^2)$ | 3–60% |
+| RANS / LES | $O(N^3)$ | 1–30% |
+| DNS | $O(N^4)$ | 1–2% |
+
+The hierarchy is not a ranking of "better is always better." Each level has a domain of validity — a region of $(Re, k)$ space where it achieves acceptable accuracy at its cost point. A DNS of every bird wingbeat would be accurate but computationally absurd. A quasi-steady model of a hummingbird's leading-edge vortex would be fast but wrong.
+
+The 3D surface shows the **accuracy landscape** of the selected model as a function of Reynolds number $Re$ (x-axis) and reduced frequency $k$ (z-axis). The white sphere marks your operating point. Switch between models using the **Model fidelity** slider and watch the surface reshape — the green region tells you where that model can be trusted.
+
+---
+
+## 2. Quasi-steady aerodynamics — assumptions and error budget
+
+The quasi-steady model assumes the wing at each instant is equivalent to a 2D airfoil in steady flow at the current effective angle of attack:
+
+$$
+L'(y,t) = \tfrac{1}{2}\rho\,U_{\text{eff}}^2(y,t)\,c(y)\,C_L(\alpha_{\text{eff}}(y,t))
+$$
+
+with $C_L(\alpha) = 2\pi\alpha$ from thin-airfoil theory. This ignores:
+- Added mass forces (proportional to $\ddot{h}$)
+- Wake-induced velocity from previously shed vortices
+- Leading-edge vortex (LEV) formation and reattachment
+- Any history effect of the flow
+
+The fractional error scales approximately as:
+
+$$
+\epsilon_{\text{QS}} \sim k + \frac{k}{\pi}\ln\frac{1}{k} \quad (k \ll 1)
+$$
+
+Below $k \approx 0.05$ and outside the LEV regime ($Re < 2000$, $k < 0.28$), quasi-steady is accurate to within 10–15%. This covers large migratory birds in cruise. It fails for hovering, insects, and all fliers where LEVs matter.
+
+---
+
+## 3. Unsteady thin-airfoil theory — the Theodorsen model
+
+Theodorsen's (1935) linearized unsteady theory adds two corrections to quasi-steady:
+
+**Added mass** (virtual mass of fluid accelerated with the wing):
+
+$$
+L_{\text{am}}(t) = -\rho\pi\left(\frac{c}{2}\right)^2\ddot{h}
+$$
+
+**Theodorsen circulation function** $C(k) = F(k) + iG(k)$ (complex):
+
+$$
+L(t) = \rho\pi\left(\frac{c}{2}\right)^2\ddot{h} + 2\pi\rho U c\,C(k)\left[\dot{h} + U\alpha + \frac{c}{4}\dot{\alpha}\right]
+$$
+
+where $F(k)$ and $G(k)$ are Bessel function combinations. The key effect: $C(k)$ reduces and phase-shifts the circulatory lift, capturing the fact that the wake "remembers" previous shed vorticity.
+
+Theodorsen is exact for linear, attached, small-amplitude, 2D flow. It fails when:
+- Amplitudes are large (nonlinear AoA)
+- The flow separates or an LEV forms
+- The boundary layer is turbulent (occurs above $Re \approx 10^5$ for thin wings)
+
+---
+
+## 4. Panel methods — boundary element approach
+
+Potential-flow panel methods represent the wing surface as a distribution of source and doublet panels. The unsteady version (time-marching panel method, e.g., Smith 1996) sheds a free wake of vortex elements at each timestep:
+
+$$
+\phi(\mathbf{x},t) = -\frac{1}{4\pi}\int_S \sigma\,\frac{1}{|\mathbf{x}-\mathbf{x}'|}\,dS' + \frac{1}{4\pi}\int_W \mu\,\nabla\frac{1}{|\mathbf{x}-\mathbf{x}'|}\cdot\mathbf{n}\,dS'
+$$
+
+where $\sigma$ is source strength and $\mu$ is doublet strength on the wake $W$.
+
+Panel methods capture:
+- 3D effects (tip vortices, spanwise loading)
+- Unsteady wake rollup (better than Theodorsen)
+- Moderate reduced frequency effects ($k < 0.5$)
+
+They fail because:
+- No viscosity: boundary layer separation is not modeled
+- No LEV: the leading-edge singularity in potential flow prevents LEV capture
+- Inaccurate at $Re < 1000$ where viscous effects dominate the whole flow field
+
+---
+
+## 5. RANS / LES — turbulence modeling
+
+Reynolds-Averaged Navier-Stokes (RANS) decomposes the velocity into mean and fluctuating parts $\mathbf{u} = \bar{\mathbf{u}} + \mathbf{u}'$ and solves for the mean:
+
+$$
+\bar{\rho}\left(\frac{\partial \bar{\mathbf{u}}}{\partial t} + \bar{\mathbf{u}}\cdot\nabla\bar{\mathbf{u}}\right) = -\nabla\bar{p} + \nabla\cdot(\bar{\boldsymbol{\tau}} + \boldsymbol{\tau}_R)
+$$
+
+where $\boldsymbol{\tau}_R = -\rho\overline{\mathbf{u}'\mathbf{u}'}$ is the Reynolds stress tensor, modeled via a turbulence closure (Spalart-Allmaras, $k$-$\omega$ SST, etc.).
+
+**Large Eddy Simulation (LES)** directly resolves eddies larger than the grid scale and models only sub-grid stresses — more accurate than RANS but more expensive.
+
+RANS/LES captures:
+- Viscous boundary layers at $Re > 10^4$
+- Flow separation and reattachment
+- Turbulent transition
+- Approximate LEV dynamics (RANS overestimates LEV diffusion; LES is better)
+
+Failures:
+- RANS: poor accuracy for massively separated flows and rapidly reversing boundary layers (common in flapping)
+- Both: expensive ($O(10^4)$ more costly than quasi-steady) and require careful mesh generation
+
+---
+
+## 6. DNS — direct numerical simulation
+
+Direct Numerical Simulation resolves all turbulent scales down to the Kolmogorov microscale $\eta_K$:
+
+$$
+\eta_K = \left(\frac{\nu^3}{\varepsilon}\right)^{1/4}
+$$
+
+where $\varepsilon$ is the dissipation rate. The number of grid cells required:
+
+$$
+N \sim \left(\frac{L}{\eta_K}\right)^3 \sim Re^{9/4}
+$$
+
+At $Re = 10^4$, this requires $\sim 10^9$ cells — feasible on current supercomputers. At $Re = 10^6$ (large migratory birds), $N \sim 10^{13}$ — beyond foreseeable hardware.
+
+DNS is the computational ground truth: it solves the Navier-Stokes equations exactly (to machine precision) with no turbulence modeling. Its error is purely numerical (truncation and round-off, $< 2\%$ for well-resolved simulations).
+
+DNS of flapping flight is currently limited to:
+- Insects and small birds: $Re < 10^4$
+- Short time horizons (a few wingbeat cycles)
+- Simple geometries
+
+---
+
+## 7. LEV capture — which models get it right?
+
+The **leading-edge vortex (LEV)** is a laminar, stable separation bubble that forms at the leading edge during rapid pitch-up or high angle of attack. It contributes 30–60% of the total lift in insects and hovering birds, and is absent from quasi-steady and potential-flow models.
+
+The LEV is active when:
+- $Re > 2000$ (viscous effects weak enough to allow reattachment)
+- $k > 0.28$ (reduced frequency high enough for rapid angle change)
+
+On the 3D surface, the "LEV regime" (upper-right of the grid) is where quasi-steady and panel methods fail catastrophically — watch their surfaces drop to red in that corner. RANS captures the LEV approximately (with errors $\sim 20$–$30\%$ in LEV circulation), while LES and DNS resolve it accurately.
+
+---
+
+## 8. Re-dependence — where each model breaks down
+
+Reynolds number sets the relative importance of viscous versus inertial forces:
+
+$$
+Re = \frac{U c}{\nu}
+$$
+
+| $Re$ range | Flow character | Appropriate model |
+|-----------|---------------|-------------------|
+| $< 100$ | Viscous, creeping | DNS or Stokes flow |
+| $100$–$1000$ | Transition, laminar | DNS |
+| $10^3$–$10^5$ | Laminar with separation | LES, RANS |
+| $10^5$–$10^6$ | Transitional boundary layer | RANS ($k$-$\omega$ SST) |
+| $> 10^6$ | Fully turbulent | RANS (cheap) |
+
+Most birds cruise in $Re = 10^4$–$10^6$. Insects operate at $Re = 10^2$–$10^4$. The dramatic regime change across this range is why no single simplified model covers all of bird flight.
+
+---
+
+## 9. Computational cost scaling
+
+If the wing chord is resolved with $n$ grid points in each direction:
+
+| Model | Cost scaling | $n = 100$ |
+|-------|-------------|----------|
+| Quasi-steady | $O(n)$ | 100 ops |
+| Panel method | $O(n^2)$ | $10^4$ ops |
+| RANS | $O(n^3)$ | $10^6$ ops |
+| LES | $O(n^{3.5})$ | $3 \times 10^7$ ops |
+| DNS | $O(n^{9/4} \cdot Re^{3/4})$ | $\sim 10^{10}$ ops |
+
+The **speedup vs. DNS** value in the readout panel shows the cost ratio at your current operating point. Moving the model slider from DNS to quasi-steady shows speedups of $10^6$–$10^8$× — each factor comes with a corresponding accuracy tradeoff shown on the surface.
+
+---
+
+## 10. Validation strategy — the ground truth hierarchy
+
+No model is validated in isolation. The standard practice is a **cross-validation ladder**:
+
+1. DNS validates LES (at the same $Re$)
+2. LES or DNS validates RANS (check turbulence model at known flow)
+3. RANS validates panel methods (compare integrated forces)
+4. Panel validates quasi-steady (compare at low $k$)
+5. All levels compare to wind tunnel / PIV experiment
+
+Experiments provide the ultimate ground truth, but PIV gives only velocity fields, not forces directly — forces are integrated from PIV data via the impulse theorem ($\mathbf{F} = -d\mathbf{I}/dt$, linking back to the Wake Topology module). The measurement uncertainty in PIV-derived forces is typically 5–15%.
+
+---
+
+## 11. When is the reduced-order model good enough?
+
+The practical question is rarely "which model is most accurate?" but "which model is accurate enough for my purpose?" A rule of thumb:
+
+- **Design iteration:** quasi-steady or panel (fast, directionally correct)
+- **Force prediction in cruise:** quasi-steady or Theodorsen if $k < 0.3$, $Re > 10^4$
+- **Hover or LEV-dependent flight:** RANS minimum; LES for accuracy
+- **Fundamental research (LEV structure, wake topology):** DNS or high-resolution LES
+
+The **Model adequate?** indicator in the readout uses a 15% threshold. For the wing flapping module's physics (cruise at $Re \approx 3 \times 10^4$, $k \approx 0.25$), the panel/Theodorsen model is adequate at the default settings — the surface is green at that operating point.
+
+---
+
+## 12. The deepest physical picture
+
+The model hierarchy is not a sequence of approximations converging to a single truth. Each level reveals different physical mechanisms:
+
+- Quasi-steady shows: how angle of attack drives lift
+- Theodorsen adds: how the shed wake phase-shifts the force
+- Panel methods add: 3D tip effects and wake geometry
+- RANS adds: viscous separation and turbulence
+- DNS adds: LEV structure and sub-grid turbulent physics
+
+The appropriate question is not "DNS or quasi-steady?" but:
+
+$$
+\boxed{
+  \text{Choose the model whose complexity matches the physics you need to resolve.}
+}
+$$
+
+For engineering prediction of cruise forces, quasi-steady often suffices. For understanding why hummingbirds can hover, only DNS or LES captures the LEV dynamics that provide 40% of their lift. The 3D surface makes this explicit: the green zone is where each model earns its keep. When your operating point leaves the green zone, the simplification has exceeded its validity, and you must climb one level up the hierarchy.

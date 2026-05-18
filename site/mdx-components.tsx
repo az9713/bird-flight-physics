@@ -4,6 +4,7 @@ import WakeTopologyDemo from "@/components/visualizations/WakeTopologyDemoLazy";
 import SpanwiseCirculationDemo from "@/components/visualizations/SpanwiseCirculationDemoLazy";
 import AeroelasticWingDemo from "@/components/visualizations/AeroelasticWingDemoLazy";
 import StrouhalExplorerDemo from "@/components/visualizations/StrouhalExplorerDemoLazy";
+import CfdComparisonDemo from "@/components/visualizations/CfdComparisonDemoLazy";
 
 const components: MDXComponents = {
   h1: ({ children }) => (
@@ -48,6 +49,7 @@ const components: MDXComponents = {
   SpanwiseCirculationDemo,
   AeroelasticWingDemo,
   StrouhalExplorerDemo,
+  CfdComparisonDemo,
 };
 
 export function useMDXComponents(): MDXComponents {
