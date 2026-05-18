@@ -14,10 +14,10 @@ const SECTIONS = [
     badge: "Live Demo",
   },
   {
-    href: "#",
+    href: "/physics/strouhal-explorer",
     title: "Strouhal Explorer",
     desc: "Interactive map of St = fA/U showing efficient flight regimes for birds, bats, fish, and insects.",
-    badge: "Coming soon",
+    badge: "Live Demo",
   },
   {
     href: "/physics/spanwise-circulation",

@@ -1,0 +1,204 @@
+# The Strouhal Explorer — Efficient Flapping Flight
+
+*One dimensionless number, $\mathrm{St} = fA/U$, governs the propulsive efficiency of every flapping animal on Earth — and nearly all of them converge on the same narrow band.*
+
+<StrouhalExplorerDemo />
+
+---
+
+## 1. The Strouhal number — definition and physical meaning
+
+The Strouhal number for a flapping flier is:
+
+$$
+\mathrm{St} = \frac{f\,A}{U}
+$$
+
+where $f$ is the wingbeat frequency, $A$ is the peak-to-peak stroke amplitude, and $U$ is the forward speed. It has a simple physical interpretation: the ratio of the transverse fluid velocity induced by the wing motion ($\sim fA$) to the forward flight speed $U$.
+
+Equivalently, $\mathrm{St}$ measures how tightly the wake vortices are packed. From the wake topology module, ring spacing is $\lambda = U/f = A/\mathrm{St}$. Low St means widely spaced rings (isolated, discrete); high St means tightly packed rings (continuous ladder wake).
+
+In the 3D surface above, the white sphere marks your current operating point $(f, A)$ on the efficiency landscape. Orbiting the surface reveals that all efficient combinations lie on a ridge in the range $\mathrm{St} \approx 0.2$–$0.45$.
+
+---
+
+## 2. Historical data — Taylor, Nudds and Thomas (2003)
+
+The landmark study by Taylor, Nudds, and Thomas (2003) examined 42 species across birds, bats, insects, and fish. Every species was measured in cruising flight or steady swimming. The result was striking:
+
+| Taxon | $\mathrm{St}$ range |
+|-------|--------------|
+| Birds | 0.19–0.49 |
+| Bats | 0.24–0.41 |
+| Insects | 0.24–0.44 |
+| Fish | 0.21–0.37 |
+| Cetaceans | 0.20–0.36 |
+
+All 42 species fall in $\mathrm{St} \in [0.19, 0.49]$. The mean is close to 0.28 for all groups. The convergence across such evolutionarily distant taxa — spanning 500 million years of independent evolution — is strong evidence that this band represents a fundamental physical optimum, not a shared ancestor.
+
+---
+
+## 3. Why $0.2 \leq \mathrm{St} \leq 0.45$ — propulsive efficiency derivation
+
+The propulsive efficiency $\eta_p$ is the fraction of total mechanical power that goes into useful work (thrust times velocity):
+
+$$
+\eta_p = \frac{T\,U}{T\,U + P_{\text{wake}}}
+$$
+
+where $P_{\text{wake}}$ is the kinetic energy deposited into the wake per unit time.
+
+From the wake topology module, the ring momentum is $I = \rho\Gamma\pi R^2$ and thrust $T = If$. The wake kinetic energy per ring involves both the ring self-energy and the kinetic energy of the induced flow.
+
+A full unsteady analysis (Triantafyllou, Triantafyllou and Gopalkrishnan, 1991) shows that the propulsive efficiency of an oscillating foil peaks sharply in the range:
+
+$$
+0.25 \lesssim \mathrm{St} \lesssim 0.35
+$$
+
+The peak arises because in this range the shed vortices roll up into a well-organized reverse Kármán street that reinforces thrust. Above this range, vortex shedding becomes disorganized; below it, the shed vortices are too weak to contribute usefully.
+
+---
+
+## 4. Efficiency as a function of St: $\eta_p(\mathrm{St})$
+
+The efficiency curve can be approximated by a Gaussian-modulated ramp:
+
+$$
+\eta_p(\mathrm{St}) \approx \eta_{\max}\,\exp\!\left[-\frac{(\mathrm{St} - \mathrm{St}^*)^2}{2\sigma^2}\right]\cdot\min\!\left(1,\frac{\mathrm{St}}{\mathrm{St}_0}\right)
+$$
+
+with $\eta_{\max} \approx 0.84$, $\mathrm{St}^* \approx 0.28$, $\sigma \approx 0.12$, and $\mathrm{St}_0 \approx 0.14$.
+
+The physical content of each factor:
+- **Gaussian:** efficiency peaks at $\mathrm{St}^*$ and falls symmetrically on either side
+- **Ramp:** at very low St ($< \mathrm{St}_0$), there is too little flapping to generate thrust — efficiency is near zero
+- **$\eta_{\max} < 1$:** profile drag, added mass, and viscous wake losses set a ceiling below 100%
+
+The 3D surface renders exactly this function evaluated over the $(f, A)$ grid for the current speed $U$.
+
+---
+
+## 5. Reduced frequency $k$ and its relation to St
+
+The **reduced frequency** is a second dimensionless parameter characterizing unsteadiness:
+
+$$
+k = \frac{\pi\,f\,c}{U}
+$$
+
+where $c$ is the wing chord. It measures how many chord lengths the wing travels per stroke period. The relationship to Strouhal number:
+
+$$
+\mathrm{St} = \frac{f\,A}{U} = \frac{k}{\pi}\cdot\frac{A}{c}
+$$
+
+For a typical bird ($A/c \approx 1$–$3$), $k \approx 0.15$–$0.8$. The Theodorsen function $C(k)$ used in the Wing Flapping module governs the unsteady lift correction; $C(k) \to 1$ as $k \to 0$ (quasi-steady limit) and $|C(k)| \to 0.5$ as $k \to \infty$ (high-frequency limit). The efficient Strouhal range corresponds to $k \approx 0.2$–$0.6$, where unsteady effects are significant but not overwhelming.
+
+---
+
+## 6. Low-St regime — quasi-steady, poor thrust
+
+When $\mathrm{St} \ll 0.2$ (slow flapping relative to forward speed), the flow responds quasi-steadily to the wing motion. The wing generates lift but little thrust: the force is nearly perpendicular to the flight path. Shed vortices are weak and widely spaced; the wake carries little momentum in the flight direction.
+
+Power is dominated by profile drag rather than induced drag, and most mechanical work goes into the wake as thermal energy. Efficiency $\eta_p \to 0$ as $\mathrm{St} \to 0$.
+
+Birds enter this regime during fast gliding transitions or when ground-effect allows them to reduce flapping — the wing is nearly not needed for thrust, and propulsion is temporarily sacrificed for altitude conservation.
+
+---
+
+## 7. High-St regime — added mass dominated
+
+When $\mathrm{St} \gg 0.4$, the flapping velocity $fA$ greatly exceeds the forward speed $U$. The dominant force is **added mass** — the inertia of the fluid that the wing must accelerate with each stroke:
+
+$$
+F_{\text{am}} \approx \frac{\pi}{4}\rho\,c^2\,b\,\ddot{h}
+$$
+
+This force is $90°$ out of phase with the stroke velocity and does not contribute net thrust over a full cycle. Added mass losses increase as $(fA)^2$, so efficiency falls steeply with increasing St.
+
+Additionally, at high St the wake vortices are so tightly packed that they interfere destructively — the thrust-producing reverse Kármán arrangement breaks down and the wake can become chaotic.
+
+Hummingbirds operate near $\mathrm{St} \approx 0.4$–$0.5$ in hovering, accepting lower efficiency in exchange for the large stroke amplitude needed to support their weight with no forward speed ($U = 0$, technically $\mathrm{St} \to \infty$).
+
+---
+
+## 8. Effect on wake topology — St determines ring vs. ladder wake
+
+The Strouhal number directly determines the wake structure (see the Wake Topology module):
+
+$$
+\lambda = \frac{U}{f} = \frac{A}{\mathrm{St}}
+$$
+
+- **Low St ($< 0.2$):** $\lambda \gg 2R$ — rings are widely separated, discrete, each carrying one stroke's impulse. The wake looks like a pearl necklace of isolated vortex rings.
+- **Moderate St ($0.2$–$0.45$):** rings are moderately spaced; their mutual induction creates a well-organized reverse Kármán street. This is the efficient regime.
+- **High St ($> 0.5$):** $\lambda \lesssim 2R$ — rings overlap and merge into a continuous ladder wake with interconnected vortex tubes.
+
+The crossover from ring to ladder wake corresponds almost exactly to the efficient St band — not a coincidence. The organized discrete-ring wake (just below the ring-ladder transition) is the configuration that converts kinetic energy to thrust most efficiently.
+
+---
+
+## 9. Species comparison — birds, bats, insects, fish
+
+The orange dots in the simulation show four representative species at $U = 8$ m/s reference speed:
+
+| Species | $f$ (Hz) | $A$ (m) | $\mathrm{St}$ |
+|---------|---------|--------|-------|
+| Albatross | 1.1 | 1.8 | 0.25 |
+| Goose | 2.5 | 0.9 | 0.28 |
+| Herring Gull | 2.8 | 0.8 | 0.28 |
+| Pigeon | 5.5 | 0.38 | 0.26 |
+
+All four converge to $\mathrm{St} \approx 0.25$–$0.28$ despite spanning 5× in frequency and 5× in amplitude. When you change the **Forward speed U** slider, watch the dots move on the surface — each species adjusts $f$ and $A$ to maintain its optimal St as speed changes.
+
+Fish (tuna, mackerel) and cetaceans (dolphins, whales) show the same clustering, despite using entirely different body morphologies and swimming in water instead of air. The universality of $\mathrm{St} \approx 0.3$ suggests the number emerges from basic principles of oscillatory propulsion, independent of fluid or morphology.
+
+---
+
+## 10. Scaling — how size and mass shift optimal St
+
+Does the optimal St change with body size? From dimensional analysis, if the aerodynamic and inertial forces scale consistently, the optimal St should be **scale-invariant** — the same dimensionless number for a hummingbird and an albatross.
+
+The body weight scales as $mg \propto m$. For level flight, $L = mg$, so:
+$$
+C_L \propto \frac{mg}{\frac{1}{2}\rho U^2 S} \sim \text{const} \quad \Rightarrow \quad U^2 \propto \frac{mg}{S}
+$$
+
+Strouhal number at optimal efficiency: $\mathrm{St}^* \approx 0.28$ regardless of size, as long as the animal operates at its morphologically optimal speed $U^*$.
+
+What does scale is the **optimal speed** itself: $U^* \propto (mg/S)^{1/2}$. Large birds fly faster because they need more speed to generate sufficient lift from their wings. The Strouhal number governs the efficiency of propulsion at whatever speed is optimal for that animal's size.
+
+---
+
+## 11. Reduced-order efficiency model
+
+The full efficiency calculation requires resolving the unsteady Theodorsen aerodynamics. A useful reduced-order model for design:
+
+$$
+\eta_p \approx \frac{1}{1 + \frac{C_{D0}}{C_L^2}\cdot\frac{\pi^2}{2k^2}}
+$$
+
+where $C_{D0}$ is the zero-lift drag coefficient and $k$ is reduced frequency. This gives the Froude efficiency in the limit of small amplitude and thin-airfoil aerodynamics. Maximizing over $k$:
+
+$$
+k^* = \pi\sqrt{\frac{C_{D0}}{2C_L^2}} \quad \Rightarrow \quad \mathrm{St}^* = \frac{k^*}{\pi}\cdot\frac{A}{c}
+$$
+
+For typical values ($C_{D0} \approx 0.01$, $C_L \approx 0.8$, $A/c \approx 1.5$), this gives $\mathrm{St}^* \approx 0.27$ — in excellent agreement with measured values.
+
+---
+
+## 12. The deepest physical picture
+
+All flapping animals — from gnats to blue whales — organize their locomotion around a single equation:
+
+$$
+\boxed{
+  \mathrm{St} = \frac{f\,A}{U} \approx 0.2\text{–}0.45
+}
+$$
+
+This is not a biological constraint. It is a fluid mechanical optimum: the Strouhal range where shed vorticity is organized into a thrust-producing reverse Kármán arrangement with the highest ratio of useful power to total power. The white sphere on the 3D surface is your operating point; the green ridge is where nature operates. They should coincide.
+
+The convergence of 42 species across 500 million years of independent evolution onto this single narrow band is one of the most compelling demonstrations in biology that physics — not ancestry — is the deepest organizing principle of animal locomotion.
