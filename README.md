@@ -1,6 +1,6 @@
 # Bird Flight Physics
 
-Rigorous unsteady aerodynamics of bird wing flapping — full mathematical derivation with an interactive 3D simulation.
+Rigorous unsteady aerodynamics of bird flight — six modules of full mathematical derivation, each with an interactive 3D simulation.
 
 ![The physics in a nutshell](nutshell.jpg)
 *The entire physics chain distilled: from wing kinematics through vortex wake impulse to lift and thrust.*
@@ -26,7 +26,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Navigate to **Wing Flapping** for the complete 18-section mathematical derivation with embedded interactive 3D demo, all equations typeset in KaTeX.
+Open [http://localhost:3000](http://localhost:3000). Six modules are available, each with a full derivation and embedded interactive 3D demo, all equations typeset in KaTeX.
 
 ---
 
@@ -46,34 +46,24 @@ Open [http://localhost:3000](http://localhost:3000). Navigate to **Wing Flapping
 
 **Pages:**
 - `/` — landing page with module cards
-- `/physics/wing-flapping` — 18-section rigorous derivation + interactive 3D demo
 
-**Physics covered** (all with full LaTeX derivations):
-1. Unsteady Navier–Stokes with moving boundaries
-2. Reynolds, Strouhal, and reduced frequency numbers
-3. Wing kinematics — heaving, pitching, effective angle of attack
-4. Quasi-steady lift model
-5. Thrust from force tilt
-6. Momentum theory and induced power scaling
-7. Vorticity formulation — Kutta–Joukowski, Kelvin's theorem, vortex loops
-8. Theodorsen unsteady thin-airfoil model
-9. Added mass
-10. Wingbeat power curve (U-shaped)
-11. Downstroke dominance and feather slotting
-12. Leading-edge vortices (LEV) and dynamic stall
-13. Spanwise structure and torque
-14. Wing twist as an aeroelastic solution
-15. Fluid–structure interaction and Cauchy number
-16. Wake topology — vortex rings to reverse Kármán street
-17. Minimal reduced-order model
-18. Deepest physical picture — **F ≈ −dI/dt**
+| Module | Route | Sections | 3D Simulation |
+|--------|-------|----------|---------------|
+| Wing Flapping Physics | `/physics/wing-flapping` | 18 | Flapping wings, vortex wake, force arrows |
+| Wake Topology | `/physics/wake-topology` | 14 | Animated vortex rings, thrust arrow |
+| Spanwise Circulation | `/physics/spanwise-circulation` | 13 | Γ(y) bars, tip vortex spirals |
+| Aeroelastic Wing | `/physics/aeroelastic-wing` | 12 | Deforming wing, flutter trigger |
+| Strouhal Explorer | `/physics/strouhal-explorer` | 12 | 3D efficiency surface, species dots |
+| CFD Comparison | `/physics/cfd-comparison` | 12 | Model accuracy landscape (Re × k) |
 
-**3D simulation features:**
-- Animated bird body + flapping wings with taper, camber, sweep
-- 320-particle vortex wake (helix pattern)
-- Live force arrows (lift, thrust, drag)
-- 5 parameter sliders: frequency, amplitude, speed, twist, wake strength
-- Real-time readout: St, Re, α_eff, U_eff, C_L, C_D, L, T, D
+**Physics covered across all modules** (all with full LaTeX derivations):
+- Unsteady Navier–Stokes, Reynolds/Strouhal/reduced-frequency numbers
+- Wing kinematics, quasi-steady lift, Theodorsen model, added mass
+- Vortex ring wake, Kelvin's theorem, impulse theorem **F = −dI/dt**
+- Prandtl lifting-line, induced drag, elliptic load, Oswald efficiency
+- Aeroelastic coupling, Cauchy number, flutter, passive pitch adaptation
+- Strouhal number optimality, cross-species convergence at St ≈ 0.28
+- Model hierarchy: quasi-steady → panel → RANS → DNS, applicability by Re and k
 
 ---
 
@@ -99,10 +89,8 @@ Claude will pick up the skill automatically and follow its workflow.
 
 ---
 
-## Next modules (planned)
+## Possible future modules
 
-- Wake topology — vortex ring shedding, impulse theorem
-- Strouhal explorer — efficient flight regime map across species
-- Spanwise circulation — Prandtl lifting-line, elliptic load
-- Aeroelastic wing deformation demos
-- CFD comparison section
+- Hovering flight — momentum jet, induced power, actuator disk
+- Formation flight — upwash harvesting, V-formation energetics
+- Morphing wing — variable geometry, gull-wing sweep optimization
