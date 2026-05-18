@@ -20,10 +20,10 @@ const SECTIONS = [
     badge: "Coming soon",
   },
   {
-    href: "#",
+    href: "/physics/spanwise-circulation",
     title: "Spanwise Circulation",
     desc: "Prandtl lifting-line theory, tip vortex rollup, and optimum elliptic load distribution.",
-    badge: "Coming soon",
+    badge: "Live Demo",
   },
   {
     href: "#",

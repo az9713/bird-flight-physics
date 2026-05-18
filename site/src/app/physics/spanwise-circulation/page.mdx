@@ -1,0 +1,237 @@
+# Spanwise Circulation and Lifting-Line Theory
+
+*A finite wing is not just a 2D airfoil stretched across the span — the tips leak vorticity, the wake pulls the wing down, and the optimal load distribution emerges from a beautiful variational principle.*
+
+<SpanwiseCirculationDemo />
+
+---
+
+## 1. Why 2D aerodynamics is insufficient — the downwash problem
+
+In two-dimensional (infinite-span) aerodynamics, a wing section at angle of attack $\alpha$ generates lift
+
+$$
+L' = \frac{1}{2}\rho U^2 c\,C_L(\alpha)
+$$
+
+with no induced drag. The flow is symmetric fore and aft; all energy goes into lift.
+
+A **finite wing** breaks this symmetry. The pressure difference between lower and upper surface drives air around the wingtip from high pressure (lower surface) to low pressure (upper surface). This tip flow creates a pair of trailing vortices, and those trailing vortices induce a downward velocity — the **downwash** $w(y)$ — along the entire span. The downwash rotates the effective oncoming flow downward, reducing the effective angle of attack and tilting the lift vector backward, creating **induced drag** that has no 2D analogue.
+
+---
+
+## 2. The horseshoe vortex and bound vortex system
+
+Prandtl's model replaces the wing with a single **bound vortex** of strength $\Gamma(y)$ along the quarter-chord line. By Helmholtz's theorem, vortex filaments cannot end in the fluid, so the bound vortex must continue into the wake as trailing vortices.
+
+Wherever $\Gamma$ changes spanwise — i.e., along the entire span — a trailing vortex filament is shed at the corresponding strength:
+
+$$
+\frac{d\Gamma_{\text{trailing}}}{dy} = -\frac{d\Gamma_b}{dy}
+$$
+
+The resulting vortex sheet rolls up into concentrated tip vortices far downstream. The simulation shows this rollup as the spiral at each wingtip — watch it grow as you increase $C_L$ and shrink as you raise **Winglet height**.
+
+---
+
+## 3. Prandtl's lifting-line equation
+
+The downwash at spanwise position $y$ from the entire trailing vortex sheet is:
+
+$$
+w(y) = \frac{1}{4\pi}\int_{-b/2}^{b/2} \frac{d\Gamma/dy'}{y - y'}\,dy'
+$$
+
+The local lift is given by thin-airfoil theory acting at the **effective** angle of attack $\alpha_{\text{eff}} = \alpha - w/U$:
+
+$$
+\Gamma(y) = \frac{1}{2}\,U\,c(y)\,a_0\left[\alpha(y) - \alpha_{L0}(y) - \frac{w(y)}{U}\right]
+$$
+
+where $a_0 = 2\pi$ is the thin-airfoil lift slope and $\alpha_{L0}$ is the zero-lift angle. Substituting the Biot-Savart expression for $w$ gives Prandtl's **lifting-line equation** — an integro-differential equation for the unknown $\Gamma(y)$.
+
+---
+
+## 4. Induced angle of attack
+
+The downwash angle at each spanwise station defines the **induced angle of attack**:
+
+$$
+\alpha_i(y) = \frac{w(y)}{U} = \frac{1}{4\pi U}\int_{-b/2}^{b/2} \frac{d\Gamma/dy'}{y - y'}\,dy'
+$$
+
+For the special case of elliptic loading (Section 6), this integral evaluates to a uniform constant across the span:
+
+$$
+\alpha_i = \frac{C_L}{\pi\,AR}
+$$
+
+The induced angle is small for high-aspect-ratio wings ($AR \gg 1$) and large for stubby wings — watch the readout as you drag the **Aspect ratio** slider.
+
+---
+
+## 5. Induced drag: $D_i = L^2 / (\tfrac{1}{2}\rho U^2 \pi b^2 e)$
+
+The induced drag arises because the lift vector is tilted backward by $\alpha_i$. The induced drag per unit span is:
+
+$$
+d_i'(y) = L'(y)\,\alpha_i(y)
+$$
+
+Integrating over the span and expressing in coefficient form:
+
+$$
+C_{D_i} = \frac{C_L^2}{\pi\,e\,AR}
+$$
+
+where $e \leq 1$ is the **Oswald span efficiency factor** (Section 7). Equivalently:
+
+$$
+D_i = \frac{L^2}{\tfrac{1}{2}\rho U^2\,\pi b^2 e}
+$$
+
+This shows immediately why long wingspans reduce induced drag: doubling $b$ at fixed $L$ cuts $D_i$ by 4.
+
+---
+
+## 6. Elliptic load distribution — the optimal solution
+
+Minimizing induced drag at fixed total lift subject to the lifting-line constraint yields the **elliptic spanwise loading**:
+
+$$
+\Gamma(y) = \Gamma_0\sqrt{1 - \left(\frac{2y}{b}\right)^2}
+$$
+
+This elliptic distribution produces uniform induced angle of attack across the span, which is the necessary condition for minimum induced drag. The Oswald efficiency is $e = 1$ exactly.
+
+A purely elliptic distribution requires an elliptically shaped wing planform with uniform angle of attack — impractical for structural reasons. In practice, a tapered wing with moderate sweep achieves $e \approx 0.96$–$0.98$.
+
+The bar heights in the simulation approximate an elliptic distribution (corrected for taper) — note how the bars decrease smoothly to zero at the tips rather than dropping abruptly.
+
+---
+
+## 7. Oswald efficiency factor $e \leq 1$
+
+Any non-elliptic spanwise loading creates additional trailing vorticity compared to the elliptic case, increasing induced drag. The Oswald factor captures this penalty:
+
+$$
+C_{D_i} = \frac{C_L^2}{\pi\,e\,AR}, \quad e \leq 1
+$$
+
+Typical values:
+- **Elliptic planform:** $e = 1.00$ (theoretical maximum)
+- **Tapered wing ($\lambda = 0.5$):** $e \approx 0.97$
+- **Rectangular wing ($\lambda = 1$):** $e \approx 0.85$–$0.92$
+- **Delta wing:** $e \approx 0.70$
+
+The **Taper ratio** slider shows this directly: a perfectly rectangular wing ($\lambda = 1$) has notably higher $C_{D_i}$ than a tapered wing at the same $AR$ and $C_L$.
+
+---
+
+## 8. Aspect ratio: $AR = b^2/S$
+
+Aspect ratio is the single most important geometric parameter for cruise efficiency. From $C_{D_i} = C_L^2/(\pi e AR)$:
+
+$$
+AR = \frac{b^2}{S} = \frac{b^2}{\int_{-b/2}^{b/2} c(y)\,dy}
+$$
+
+The power required to overcome induced drag scales as:
+
+$$
+P_{\text{induced}} = D_i\,U = \frac{L^2}{\tfrac{1}{2}\rho U\,\pi b^2 e}
+$$
+
+For migratory birds: albatrosses ($AR \approx 18$) fly enormous distances at low energetic cost; sparrows ($AR \approx 5$) are maneuverable but pay a higher induced drag penalty in cruise.
+
+Drag the **Aspect ratio** slider from 2 to 20 and watch $C_{D_i}$ drop by nearly an order of magnitude.
+
+---
+
+## 9. Tip vortex rollup mechanism
+
+The trailing vortex sheet shed by the wing is not stable — it rolls up under its own self-induced velocity. The Kelvin-Helmholtz mechanism causes the outer edges (near the wingtip) to roll inward, concentrating vorticity into a tight core.
+
+The rollup distance scales as:
+
+$$
+x_{\text{rollup}} \approx \frac{U\,b}{\Gamma_{\text{tip}}}
+$$
+
+For a typical bird, complete rollup occurs 3–5 wingspans downstream. The resulting tip vortex core has radius:
+
+$$
+r_{\text{core}} \approx 0.04\,b
+$$
+
+and peak tangential velocity:
+
+$$
+v_{\theta,\max} \approx \frac{\Gamma}{2\pi\,r_{\text{core}}}
+$$
+
+The spiral animations in the simulation represent this rollup motion — the pitch of the spiral reflects the self-induced downward velocity of the vortex pair.
+
+---
+
+## 10. Winglet function — recovering induced drag
+
+A winglet is a near-vertical extension at each wingtip. Its action is equivalent to increasing the effective span $b_{\text{eff}} > b$ without increasing actual wingspan:
+
+$$
+e_{\text{eff}} = e\left(1 + k\,\frac{h}{b}\right)^2
+$$
+
+where $h$ is the winglet height and $k \approx 1.5$–$2.0$ depends on winglet geometry. Equivalently, a winglet of height $h = 0.1b$ recovers roughly $5$–$7\%$ of induced drag.
+
+The mechanism: the winglet inhibits tip vortex formation by reducing the pressure difference that drives flow around the tip. It does not eliminate the tip vortex but significantly weakens it, as shown in the simulation when you increase **Winglet height** — the spiral becomes smaller and tighter.
+
+---
+
+## 11. Feather slotting as spanwise load optimization
+
+Many large soaring birds (eagles, vultures, storks) spread their primary feathers at the wingtip, creating slots — gaps between individual feathers. These slotted primaries function as multiple small winglets.
+
+Each slotted feather carries its own circulation and sheds its own small trailing vortex. The interference between adjacent feather vortices reduces the tip-loss penalty. Effectively, slotting converts the single strong tip vortex into multiple weaker vortices with lower mutual induction, recovering $\Delta e \approx 0.03$–$0.06$.
+
+The optimal slot geometry depends on the ratio of span loading to feather stiffness — an aeroelastic optimization the bird has solved passively over millions of years.
+
+---
+
+## 12. Non-elliptic wings — taper and sweep corrections
+
+The lifting-line solution for arbitrary $\Gamma(y)$ is found via the **Fourier-Glauert substitution**:
+
+$$
+y = -\frac{b}{2}\cos\theta, \quad \theta \in [0,\pi]
+$$
+
+The circulation is expanded as a Fourier sine series:
+
+$$
+\Gamma(\theta) = 4Ub\sum_{n=1}^{\infty} A_n \sin(n\theta)
+$$
+
+The first Fourier coefficient $A_1$ gives the elliptic component (minimum induced drag); higher terms ($A_3, A_5, \ldots$) are the non-elliptic corrections. The Oswald factor:
+
+$$
+e = \frac{1}{1 + \delta}, \quad \delta = \sum_{n=2}^{\infty} n\left(\frac{A_n}{A_1}\right)^2 \geq 0
+$$
+
+A tapered wing ($\lambda_T \approx 0.3$–$0.5$) minimizes $\delta$ because the chord distribution naturally approximates the elliptic shape needed to make the load distribution elliptic under the lifting-line constraint.
+
+---
+
+## 13. The deepest physical picture
+
+Every penalty in finite-wing aerodynamics traces back to one equation:
+
+$$
+\boxed{
+  C_{D_i} = \frac{C_L^2}{\pi\,e\,AR}
+}
+$$
+
+This is not empirical — it follows from the exact solution of Prandtl's lifting-line equation via Parseval's theorem applied to the Fourier expansion of the spanwise loading. It says: **the cost of generating lift is paid in induced drag, and that cost is inversely proportional to aspect ratio and span efficiency.**
+
+A bird in cruise at fixed weight ($L = mg$) and speed minimizes induced drag by flying with the highest possible $e\,AR$. Longer wings, better-shaped wings, and winglets all increase $e\,AR$. The migratory albatross, with $AR \approx 18$ and $e \approx 0.97$, is nearly at the structural limit of this optimization — a product of exactly the same variational principle that Prandtl derived in 1918.
